@@ -59,11 +59,11 @@ def register(request):
                     subject = 'Welcome to Swarna Sampadha!'
                     message = (
                         f"Dear {user.mobile_no},\n\n"
-                        f"Welcome to Swarna Sampadha!\n"
+                        f"Welcome to Dinesh Ayurvedics!\n"
                         f"Your account has been successfully created.\n\n"
                         f"Phone Number: {user.mobile_no}\n"
-                        f"Login here: http://127.0.0.1:8000/login/\n\n"
-                        f"Best regards,\nSwarna Sampadha Team"
+                        f"Login here: https://network-marketing-7llt.onrender.com/\n\n"
+                        f"Best regards,\nDinesh Ayurvedics Team"
                     )
                     if user.email:
                         send_mail(
