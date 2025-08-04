@@ -61,6 +61,7 @@ class ContactForm(forms.Form):
 
 class ForgotPasswordForm(forms.Form):
     mobile_no = forms.CharField(max_length=15, required=True, label='Mobile Number')
+    email = forms.EmailField(required=False, label="Email (if no email is associated)")
 
     def clean_mobile_no(self):
         mobile_no = self.cleaned_data.get('mobile_no')
