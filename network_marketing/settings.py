@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import dj_database_url 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,6 +29,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'network_marketing.urls'
@@ -50,15 +53,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'network_marketing.wsgi.application'
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'products',
+#         'USER': 'postgres',
+#         'PASSWORD': 'Gouse@1725',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
+
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'products',
-        'USER': 'postgres',
-        'PASSWORD': 'Gouse@1725',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default='postgresql://postgres:Gouse%401725@localhost:5432/products',
+        conn_max_age=600
+    )
 }
 
 AUTH_USER_MODEL = 'core.CustomUser'
@@ -88,7 +100,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "core/static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+if not DEBUG:
+    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

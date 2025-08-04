@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import CustomUserCreationForm, ContactForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
-from .models import CustomUser, Product, Prod_category, OTP
+from .models import CustomUser, Product, Prod_category, OTP, Order, OrderItem
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
@@ -452,7 +452,22 @@ def checkout(request):
             messages.error(request, 'Your cart is empty.')
             return redirect('cart')
         try:
-            # Clear the cart after payment confirmation
+            # Create an Order
+            order = Order.objects.create(
+                user=request.user,
+                total_amount=cart_total
+            )
+            
+            # Create OrderItems
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item['product'],
+                    quantity=item['quantity'],
+                    item_total=item['item_total']
+                )
+            
+            # Clear the cart
             request.session['cart'] = {}
             messages.success(request, 'Payment successful! Your order has been placed.')
             return redirect('products')
@@ -461,3 +476,19 @@ def checkout(request):
             messages.error(request, 'Payment failed. Please try again.')
             return redirect('cart')
     return redirect('payment')
+
+@login_required(login_url='login')
+def recent_purchases(request):
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    
+    # Fetch user's orders, most recent first
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    
+    return render(request, 'recent_purchases.html', {
+        'orders': orders,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
