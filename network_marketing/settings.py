@@ -6,9 +6,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'your-secret-key-change-this-in-production'
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -100,10 +100,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "core/static"]
-if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
@@ -129,3 +126,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 OWNER_UPI_ID = "gouse1725@ibl"  # Replace with your actual UPI ID
 OWNER_MOBILE_NO = "+919491309768"  # Replace with actual mobile number
 OWNER_EMAIL = "abdulgouse757@gmail.com"  # Replace with actual email
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'abdulgouse757@gmail.com'
+EMAIL_HOST_PASSWORD = 'fzyr cmyg dckz yivs'
+DEFAULT_FROM_EMAIL = 'abdulgouse757@gmail.com'

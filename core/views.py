@@ -130,11 +130,15 @@ def forgot_password(request):
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             mobile_no = form.cleaned_data['mobile_no']
+            email = form.cleaned_data['email']
             try:
                 user = CustomUser.objects.get(mobile_no=mobile_no)
-                if not user.email:
-                    messages.error(request, 'No email associated with this mobile number.')
+                if not user.email and not email:
+                    messages.error(request, 'No email associated with this mobile number. Please provide an email.')
                     return redirect('forgot_password')
+                if email:
+                    user.email = email
+                    user.save()
                 otp_code = ''.join(random.choices(string.digits, k=6))
                 expires_at = timezone.now() + timezone.timedelta(minutes=5)
                 OTP.objects.create(user=user, code=otp_code, expires_at=expires_at)
