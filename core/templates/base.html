@@ -252,8 +252,8 @@
     <nav class="navbar navbar-expand-lg navbar-light main-navbar">
         <div class="container-fluid mx-4">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <img src="{% static 'logo.png' %}" alt="Logo">
-                <span>Swarna Sampadha</span>
+                <img src="{% static 'logoD.png' %}" alt="Logo">
+                <span>Dinesh Ayurvedics</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -273,7 +273,7 @@
                         </ul>
                     </li>
                     {% if user.is_authenticated %}
-                        
+                        <li class="nav-item"><a class="nav-link" href="{% url 'recent_purchases' %}">Recent Purchases</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
@@ -299,7 +299,6 @@
                             <li><a class="dropdown-item" href="{% url 'about' %}">About</a></li>
                             <li><a class="dropdown-item" href="{% url 'contact' %}">Contact</a></li>
                             <li><a class="dropdown-item" href="{% url 'products' %}">Products</a></li>
-                            <li><a class="dropdown-item" href="{% url 'business_plan' %}">Business Plan</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -351,7 +350,7 @@
     <footer class="footer">
         <div class="container">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-                <p>&copy; 2025 Swarna Sampadha. All rights reserved.</p>
+                <p>&copy; 2025 Dinesh Ayurvedics. All rights reserved.</p>
                 <div class="social-links">
                     <a href="#" aria-label="Facebook" class="fab fa-facebook-f"></a>
                     <a href="#" aria-label="Twitter" class="fab fa-twitter"></a>
