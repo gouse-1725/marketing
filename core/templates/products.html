@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Products - Swarna Sampadha{% endblock %}
+{% block hero %}
+{% endblock %}
+{% block content %}
+    <section class="category-section">
+        <h2 class="category-title" data-translate="title">All Products</h2>
+        <div class="product-list">
+            <div class="list-group">
+                {% for item in products %}
+                    {% if item.slug %}
+                        <a href="{% url 'product_detail' slug=item.slug %}" class="product-item list-group-item list-group-item-action d-flex">
+                            <img src="{% if item.image and item.image.url %}{{ item.image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" 
+                                 class="product-image" 
+                                 alt="{{ item.name|escape }}" 
+                                 onerror="this.src='https://via.placeholder.com/80x60?text=Image+Not+Found';">
+                            <div class="product-info">
+                                <h6 class="product-title">{{ item.name|truncatechars:60 }}</h6>
+                            </div>
+                        </a>
+                    {% else %}
+                        <div class="product-item">
+                            <p class="text-danger">Error: Product "{{ item.name }}" has no slug.</p>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="col-12 text-center py-4">
+                        <p class="lead" data-translate="no-items">No products available yet.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

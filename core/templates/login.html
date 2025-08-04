@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Login - Swarna Sampadha{% endblock %}
+{% block hero %}
+{% endblock %}
+{% block content %}
+<style>
+    /* New login section background */
+    .login-section {
+        background-color: #f0f2f5;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+    }
+
+    /* Login form container styling */
+    .login-form-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        max-width: 500px;
+        width: 100%;
+        position: relative;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    /* Form title styling */
+    .login-form-container .category-title {
+        font-family: 'Merriweather', serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1a2a43;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    .login-form-container .category-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .login-form-container .category-title::after {
+        content: '';
+        display: block;
+        width: 70px;
+        height: 4px;
+        background-color: #007bff;
+        margin: 10px auto 0;
+        border-radius: 2px;
+    }
+
+    /* Form group styling with icons */
+    .form-group {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    .form-group .form-control {
+        padding-left: 3rem;
+        border-radius: 10px;
+        border: 1px solid #dee2e6;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        height: 50px;
+        font-size: 1rem;
+    }
+    .form-group .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+    }
+    
+    /* Floating label animation */
+    .form-group .form-label {
+        position: absolute;
+        top: 15px;
+        left: 3rem;
+        color: #888;
+        font-size: 1rem;
+        transition: all 0.2s ease-in-out;
+        pointer-events: none;
+    }
+    .form-control:focus ~ .form-label,
+    .form-control:not(:placeholder-shown) ~ .form-label {
+        top: -10px;
+        left: 10px;
+        font-size: 0.75rem;
+        color: #007bff;
+        background: #fff;
+        padding: 0 5px;
+        z-index: 10;
+    }
+
+    .form-group .form-icon {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        color: #adb5bd;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+        z-index: 2;
+    }
+    .form-control:focus ~ .form-icon {
+        color: #007bff;
+    }
+
+    /* Error styling */
+    .errorlist {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        list-style: none;
+        padding-left: 0;
+    }
+    .errorlist li {
+        margin-left: 3rem;
+    }
+
+    /* Login button */
+    .btn-login {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 2rem;
+    }
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+    }
+    .btn-login .fa-sign-in-alt {
+        font-size: 1.2rem;
+    }
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+    .btn-login:hover::before {
+        width: 300%;
+        height: 300%;
+    }
+
+    /* Links below the form */
+    .form-links {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    .form-links a {
+        font-size: 0.95rem;
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    .form-links a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 767px) {
+        .login-form-container {
+            padding: 2rem;
+            margin: 1rem;
+        }
+        .login-form-container .category-title {
+            font-size: 1.8rem;
+        }
+        .btn-login {
+            padding: 12px 20px;
+            font-size: 1rem;
+        }
+        .form-group .form-control {
+            height: 45px;
+        }
+    }
+</style>
+
+<div class="login-section">
+    <div class="login-form-container">
+        <h2 class="category-title">Welcome Back!</h2>
+        <p class="category-subtitle">Sign in to your account to continue.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <p>Invalid username or password.</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="form-group">
+                <i class="fas fa-user form-icon"></i>
+                <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="form-control" value="{{ form.username.value|default_if_none:'' }}" required>
+                <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }} *</label>
+                {% if form.username.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-lock form-icon"></i>
+                <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="form-control" required>
+                <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }} *</label>
+                {% if form.password.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="form-links">
+            <a href="{% url 'register' %}">Don't have an account? Register here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
