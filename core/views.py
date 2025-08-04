@@ -11,6 +11,10 @@ from django.utils import timezone
 import logging
 import random
 import string
+import qrcode
+import os
+import sys
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +26,13 @@ def get_cart(request):
     for product_id, quantity in cart.items():
         try:
             product = get_object_or_404(Product, id=product_id)
-            cart_items.append({'product': product, 'quantity': quantity})
-            cart_total += product.price * quantity
+            item_total = product.price * quantity
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                'item_total': item_total
+            })
+            cart_total += item_total
         except Exception as e:
             logger.error(f"Error retrieving product {product_id}: {str(e)}")
     return cart_items, cart_total, len(cart_items)
@@ -39,74 +48,6 @@ def home(request):
         'recent_items': recent_items,
         'cart_count': cart_count
     })
-
-# def register(request):
-#     if request.method == 'POST':
-#         form = CustomUserCreationForm(request.POST)
-#         if form.is_valid():
-#             try:
-#                 user = form.save()
-#                 try:
-#                     subject = 'Welcome to Swarna Sampadha!'
-#                     message = (
-#                         f"Dear {user.mobile_no},\n\n"
-#                         f"Welcome to Swarna Sampadha!\n"
-#                         f"Your account has been successfully created.\n\n"
-#                         f"Phone Number: {user.mobile_no}\n"
-#                         f"Password: {form.cleaned_data['password1']}\n"
-#                         f"Login here: http://127.0.0.1:8000/login/\n\n"
-#                         f"Best regards,\nSwarna Sampadha Team"
-#                     )
-#                     send_mail(
-#                         subject,
-#                         message,
-#                         settings.DEFAULT_FROM_EMAIL,
-#                         [user.email] if user.email else [settings.CONTACT_EMAIL],
-#                         fail_silently=False,
-#                     )
-#                     logger.info(f"Welcome email sent to {user.email or settings.CONTACT_EMAIL}")
-#                 except Exception as e:
-#                     logger.error(f"Failed to send email to {user.email or settings.CONTACT_EMAIL}: {str(e)}")
-#                 messages.success(request, 'Registration successful! Please log in.')
-#                 return redirect('login')
-#             except Exception as e:
-#                 logger.error(f"Error saving user: {str(e)}, Form data: {form.cleaned_data}")
-#                 messages.error(request, 'Registration failed due to a server error. Please try again.')
-#         else:
-#             logger.error(f"Form errors: {form.errors.as_json()}, Form data: {request.POST}")
-#             messages.error(request, 'Please correct the errors below.')
-#     else:
-#         form = CustomUserCreationForm()
-#     categories = Prod_category.objects.all()
-#     recent_items = Product.objects.order_by('-created_at')[:5]
-#     cart_items, cart_total, cart_count = get_cart(request)
-#     return render(request, 'register.html', {
-#         'form': form,
-#         'categories': categories,
-#         'recent_items': recent_items,
-#         'cart_count': cart_count
-#     })
-
-# def login_view(request):
-#     if request.method == 'POST':
-#         mobile_no = request.POST.get('mobile_no')
-#         password = request.POST.get('password')
-#         user = authenticate(request, username=mobile_no, password=password)
-#         if user is not None:
-#             login(request, user)
-#             return redirect('products')
-#         else:
-#             messages.error(request, 'Invalid phone number or password.')
-#     form = AuthenticationForm()
-#     categories = Prod_category.objects.all()
-#     recent_items = Product.objects.order_by('-created_at')[:5]
-#     cart_items, cart_total, cart_count = get_cart(request)
-#     return render(request, 'login.html', {
-#         'form': form,
-#         'categories': categories,
-#         'recent_items': recent_items,
-#         'cart_count': cart_count
-#     })
 
 def register(request):
     if request.method == 'POST':
@@ -161,11 +102,10 @@ def login_view(request):
     if request.method == 'POST':
         mobile_no = request.POST.get('mobile_no')
         password = request.POST.get('password')
-        # Use mobile_no as the username for authentication
         user = authenticate(request, username=mobile_no, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')  # Redirect to home or another page after login
+            return redirect('home')
         else:
             messages.error(request, 'Invalid phone number or password.')
     
@@ -180,7 +120,6 @@ def login_view(request):
         'recent_items': recent_items,
         'cart_count': cart_count
     })
-
 
 def logout_view(request):
     logout(request)
@@ -442,7 +381,70 @@ def cart(request):
         'recent_items': recent_items
     })
 
-@login_required
+@login_required(login_url='login')
+def payment(request):
+    cart_items, cart_total, cart_count = get_cart(request)
+    if not cart_items:
+        messages.error(request, 'Your cart is empty.')
+        return redirect('cart')
+    
+    try:
+        # Validate UPI ID
+        upi_id = getattr(settings, 'OWNER_UPI_ID', None)
+        if not upi_id or not isinstance(upi_id, str) or '@' not in upi_id:
+            raise ValueError("Invalid or missing OWNER_UPI_ID in settings")
+        
+        # Generate UPI payment URL
+        upi_url = f"upi://pay?pa={upi_id}&pn=Swarna%20Sampadha&am={cart_total}&cu=INR"
+        
+        # Validate cart total
+        if cart_total <= 0:
+            raise ValueError("Cart total must be greater than zero")
+        
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4
+        )
+        qr.add_data(upi_url)
+        qr.make(fit=True)
+        qr_image = qr.make_image(fill_color="black", back_color="white")
+        
+        # Ensure static/images directory exists
+        static_dir = os.path.join(settings.STATICFILES_DIRS[0], 'images')
+        if not os.path.exists(static_dir):
+            os.makedirs(static_dir)
+            logger.info(f"Created directory: {static_dir}")
+        
+        # Save QR code to static directory
+        qr_path = os.path.join(static_dir, 'payment_qr.png')
+        qr_image.save(qr_path, format='PNG')
+        
+        # Verify file was saved
+        if not os.path.exists(qr_path):
+            raise IOError(f"Failed to save QR code at {qr_path}")
+        
+        categories = Prod_category.objects.all()
+        recent_items = Product.objects.order_by('-created_at')[:5]
+        
+        return render(request, 'payment.html', {
+            'cart_total': cart_total,
+            'cart_count': cart_count,
+            'categories': categories,
+            'recent_items': recent_items,
+            'qr_code_url': '/static/images/payment_qr.png',
+            'owner_mobile_no': settings.OWNER_MOBILE_NO,
+            'owner_email': settings.OWNER_EMAIL,
+        })
+    except Exception as e:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        logger.error(f"Error generating payment QR code: {str(e)} (Type: {exc_type.__name__}, File: {exc_traceback.tb_frame.f_code.co_filename}, Line: {exc_traceback.tb_lineno})")
+        messages.error(request, 'Error generating payment QR code. Please try again.')
+        return redirect('cart')
+
+@login_required(login_url='login')
 def checkout(request):
     if request.method == 'POST':
         cart_items, cart_total, cart_count = get_cart(request)
@@ -450,6 +452,7 @@ def checkout(request):
             messages.error(request, 'Your cart is empty.')
             return redirect('cart')
         try:
+            # Clear the cart after payment confirmation
             request.session['cart'] = {}
             messages.success(request, 'Payment successful! Your order has been placed.')
             return redirect('products')
@@ -457,4 +460,4 @@ def checkout(request):
             logger.error(f"Payment processing failed: {str(e)}")
             messages.error(request, 'Payment failed. Please try again.')
             return redirect('cart')
-    return redirect('cart')
+    return redirect('payment')

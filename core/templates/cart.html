@@ -125,6 +125,10 @@
         box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
     }
 
+    .alert {
+        margin-bottom: 2rem;
+    }
+
     @media (max-width: 767px) {
         .cart-container {
             padding: 2rem;
@@ -149,6 +153,14 @@
 <div class="cart-section">
     <div class="container cart-container">
         <h2 class="cart-title">Your Cart</h2>
+        {% if messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
         {% if cart_items %}
             <div class="list-group">
                 {% for item in cart_items %}
@@ -156,8 +168,8 @@
                         <img src="{% if item.product.image and item.product.image.url %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" 
                              alt="{{ item.product.name|escape }}" 
                              onerror="this.src='https://via.placeholder.com/80x60?text=Image+Not+Found';">
-                        <h6 class="cart-item-title">{{ item.product.name|truncatechars:60 }}</h6>
-                        <p class="cart-item-price">Rs {{ item.product.price }} /-</p>
+                        <h6 class="cart-item-title">{{ item.product.name|truncatechars:60 }} (Qty: {{ item.quantity }})</h6>
+                        <p class="cart-item-price">Rs {{ item.item_total|floatformat:2 }} /-</p>
                         <form action="{% url 'remove_from_cart' %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="product_id" value="{{ item.product.id }}">
@@ -168,16 +180,16 @@
                     </div>
                 {% endfor %}
             </div>
-            <p class="cart-total">Total: Rs {{ cart_total }} /-</p>
-            <form action="{% url 'checkout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-checkout">
-                    <i class="fas fa-credit-card"></i> Proceed to Checkout
-                </button>
-            </form>
+            <p class="cart-total">Total: Rs {{ cart_total|floatformat:2 }} /-</p>
+            <a href="{% url 'payment' %}" class="btn btn-checkout">
+                <i class="fas fa-credit-card"></i> Proceed to Payment
+            </a>
         {% else %}
             <div class="col-12 text-center py-4">
                 <p class="lead">Your cart is empty.</p>
+                <a href="{% url 'products' %}" class="btn btn-checkout">
+                    <i class="fas fa-shopping-bag"></i> Continue Shopping
+                </a>
             </div>
         {% endif %}
     </div>

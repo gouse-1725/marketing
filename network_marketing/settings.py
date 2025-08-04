@@ -106,3 +106,9 @@ EMAIL_HOST_PASSWORD = 'fzyr cmyg dckz yivs'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# settings.py
+OWNER_UPI_ID = "gouse1725@ibl"  # Replace with your actual UPI ID
+OWNER_MOBILE_NO = "+919491309768"  # Replace with actual mobile number
+OWNER_EMAIL = "abdulgouse757@gmail.com"  # Replace with actual email
