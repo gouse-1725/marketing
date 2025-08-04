@@ -2,7 +2,6 @@ databases:
   - name: products
     plan: free
     databaseName: products
-    user: postgres
 
 services:
   - type: web
