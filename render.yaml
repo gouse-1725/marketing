@@ -1,0 +1,22 @@
+databases:
+  - name: products
+    plan: free
+    databaseName: products
+    user: postgres
+
+services:
+  - type: web
+    plan: free
+    name: network_marketing
+    runtime: python
+    buildCommand: './build.sh'
+    startCommand: 'python -m gunicorn network_marketing.asgi:application -k uvicorn.workers.UvicornWorker'
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: products
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
