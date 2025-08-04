@@ -9,7 +9,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('mobile_no', 'email', 'first_name', 'last_name')
 
     mobile_no = forms.CharField(label='Mobile Number', max_length=15)
-    email = forms.EmailField(required=False, label='Email (Optional)')
+    email = forms.EmailField(required=False, label='Email ')
     first_name = forms.CharField(required=False, label='First Name (Optional)')
     last_name = forms.CharField(required=False, label='Last Name (Optional)')
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
