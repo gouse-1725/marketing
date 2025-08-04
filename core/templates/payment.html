@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}Payment - Swarna Sampadha{% endblock %}
+{% block hero %}{% endblock %}
+{% block content %}
+<style>
+    .payment-section {
+        background-color: #f0f2f5;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+    }
+
+    .payment-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        max-width: 550px;
+        width: 100%;
+        position: relative;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    .payment-container .category-title {
+        font-family: 'Merriweather', serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1a2a43;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    .payment-container .category-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .payment-container .category-title::after {
+        content: '';
+        display: block;
+        width: 70px;
+        height: 4px;
+        background-color: #007bff;
+        margin: 10px auto 0;
+        border-radius: 2px;
+    }
+
+    .qr-code-container {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .qr-code-container img {
+        max-width: 200px;
+        width: 100%;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+    }
+
+    .payment-details {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+    .payment-details p {
+        margin: 0.5rem 0;
+        font-size: 1rem;
+        color: #495057;
+    }
+    .payment-details strong {
+        color: #1a2a43;
+    }
+
+    .btn-confirm {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 2rem;
+    }
+    .btn-confirm:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+    }
+    .btn-confirm .fa-check {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 767px) {
+        .payment-container {
+            padding: 2rem;
+            margin: 1rem;
+        }
+        .payment-container .category-title {
+            font-size: 1.8rem;
+        }
+        .btn-confirm {
+            padding: 12px 20px;
+            font-size: 1rem;
+        }
+        .qr-code-container img {
+            max-width: 150px;
+        }
+    }
+</style>
+
+<div class="payment-section">
+    <div class="payment-container">
+        <h2 class="category-title">Complete Your Payment</h2>
+        <p class="category-subtitle">Scan the QR code to pay using your preferred UPI app.</p>
+        
+        {% if messages %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        
+        <div class="qr-code-container">
+            <img src="{{ qr_code_url }}" alt="Payment QR Code" />
+        </div>
+        
+        <div class="payment-details">
+            <p><strong>Total Amount:</strong> ₹{{ cart_total }}</p>
+            <p><strong>Pay To:</strong> Swarna Sampadha</p>
+            <p><strong>Mobile Number:</strong> {{ owner_mobile_no }}</p>
+            <p><strong>Email:</strong> {{ owner_email }}</p>
+        </div>
+        
+        <form method="post" action="{% url 'checkout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-confirm">
+                <i class="fas fa-check"></i> Confirm Payment
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
