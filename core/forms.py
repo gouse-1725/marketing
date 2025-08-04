@@ -1,88 +1,84 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
+import re
 
 class CustomUserCreationForm(UserCreationForm):
-    mobile_no = forms.CharField(max_length=15, required=True)
-    gift_code = forms.CharField(max_length=50, required=True)
-    introducer_id = forms.ModelChoiceField(
-        queryset=CustomUser.objects.all(),
-        to_field_name='username',
-        label="Introducer ID",
-        required=False,
-        empty_label="None (First User)"
-    )
-    placed_under_id = forms.ModelChoiceField(
-        queryset=CustomUser.objects.all(),
-        to_field_name='username',
-        label="Placed Under ID",
-        required=False,
-        empty_label="None (First User)"
-    )
-    position = forms.ChoiceField(choices=[('', 'None'), ('left', 'Left'), ('right', 'Right')], required=False)
-    terms_agreed = forms.BooleanField(required=True, label="I agree to the terms and conditions")
-
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'mobile_no', 'gift_code', 'introducer_id', 'placed_under_id', 'position', 'password1', 'password2', 'terms_agreed')
+        fields = ('mobile_no', 'email', 'first_name', 'last_name')
 
-    def __init__(self, *args, user=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-        if user and user.is_authenticated:
-            self.fields['introducer_id'].initial = user
-            self.fields['introducer_id'].disabled = True  # Lock introducer to current user
+    mobile_no = forms.CharField(label='Mobile Number', max_length=15)
+    email = forms.EmailField(required=False, label='Email (Optional)')
+    first_name = forms.CharField(required=False, label='First Name (Optional)')
+    last_name = forms.CharField(required=False, label='Last Name (Optional)')
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
 
-    def clean_introducer_id(self):
-        introducer = self.cleaned_data.get('introducer_id')
-        if CustomUser.objects.exists() and not introducer:
-            raise forms.ValidationError("Please select a valid Introducer ID")
-        return introducer or self.user
+    def clean_mobile_no(self):
+        mobile_no = self.cleaned_data.get('mobile_no')
+        if not re.match(r'^\+?\d{10,15}$', mobile_no):
+            raise forms.ValidationError("Enter a valid mobile number (10-15 digits, optional '+' prefix).")
+        if CustomUser.objects.filter(mobile_no=mobile_no).exists():
+            raise forms.ValidationError("This mobile number is already registered.")
+        return mobile_no
 
-    def clean_placed_under_id(self):
-        parent = self.cleaned_data.get('placed_under_id')
-        if CustomUser.objects.exists() and not parent:
-            raise forms.ValidationError("Please select a valid Placed Under ID")
-        return parent
-
-    def clean_position(self):
-        position = self.cleaned_data.get('position')
-        parent = self.cleaned_data.get('placed_under_id')
-        if parent:
-            if not position:
-                raise forms.ValidationError("Please select a position (Left or Right)")
-            # Check if position is already taken
-            if CustomUser.objects.filter(parent=parent, position=position).exists():
-                raise forms.ValidationError(f"The {position} position under this parent is already taken")
-        return position
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already in use.")
+        return email
 
     def clean(self):
         cleaned_data = super().clean()
-        username = cleaned_data.get('username')
-        mobile_no = cleaned_data.get('mobile_no')
-        gift_code = cleaned_data.get('gift_code')
-
-        if username and CustomUser.objects.filter(username=username).exists():
-            self.add_error('username', "A user with that username already exists.")
-        if mobile_no and CustomUser.objects.filter(mobile_no=mobile_no).exists():
-            self.add_error('mobile_no', "This mobile number is already in use.")
-        if gift_code and CustomUser.objects.filter(gift_code=gift_code).exists():
-            self.add_error('gift_code', "This gift code is already in use.")
-
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("The two password fields didn't match.")
         return cleaned_data
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.mobile_no = self.cleaned_data['mobile_no']
-        user.gift_code = self.cleaned_data['gift_code']
-        user.introducer = self.cleaned_data['introducer_id']
-        user.parent = self.cleaned_data['placed_under_id']
-        user.position = self.cleaned_data['position']
-        if commit:
-            user.save()
+        mobile_no = self.cleaned_data.get('mobile_no')
+        password = self.cleaned_data.get('password1')
+        email = self.cleaned_data.get('email')
+        first_name = self.cleaned_data.get('first_name')
+        last_name = self.cleaned_data.get('last_name')
+
+        user = CustomUser.objects.create_user(
+            mobile_no=mobile_no,
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
+        )
         return user
 
 class ContactForm(forms.Form):
-    name = forms.CharField(max_length=100, required=True)
-    email = forms.EmailField(required=True)
-    message = forms.CharField(widget=forms.Textarea, required=True)
+    name = forms.CharField(max_length=100, required=True, label='Your Name')
+    email = forms.EmailField(required=True, label='Your Email')
+    subject = forms.CharField(max_length=200, required=True, label='Subject')
+    message = forms.CharField(widget=forms.Textarea, required=True, label='Message')
+
+class ForgotPasswordForm(forms.Form):
+    mobile_no = forms.CharField(max_length=15, required=True, label='Mobile Number')
+
+    def clean_mobile_no(self):
+        mobile_no = self.cleaned_data.get('mobile_no')
+        if not re.match(r'^\+?\d{10,15}$', mobile_no):
+            raise forms.ValidationError("Enter a valid mobile number (10-15 digits, optional '+' prefix).")
+        return mobile_no
+
+class OTPForm(forms.Form):
+    otp = forms.CharField(max_length=6, required=True, label='OTP Code')
+
+class ResetPasswordForm(forms.Form):
+    new_password1 = forms.CharField(widget=forms.PasswordInput, required=True, label='New Password')
+    new_password2 = forms.CharField(widget=forms.PasswordInput, required=True, label='Confirm New Password')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password1 = cleaned_data.get('new_password1')
+        new_password2 = cleaned_data.get('new_password2')
+        if new_password1 and new_password2 and new_password1 != new_password2:
+            raise forms.ValidationError("The two password fields didn't match.")
+        return cleaned_data

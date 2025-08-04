@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cart - Swarna Sampadha{% endblock %}
+{% block hero %}
+{% endblock %}
+{% block content %}
+<style>
+    .cart-section {
+        background-color: #f0f2f5;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        padding: 3rem 1rem;
+    }
+
+    .cart-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .cart-title {
+        font-family: 'Merriweather', serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1a2a43;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+    }
+    .cart-title::after {
+        content: '';
+        display: block;
+        width: 70px;
+        height: 4px;
+        background-color: #007bff;
+        margin: 10px auto 0;
+        border-radius: 2px;
+    }
+
+    .cart-item {
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .cart-item:hover {
+        background-color: #e9ecef;
+    }
+
+    .cart-item img {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-right: 1.5rem;
+    }
+
+    .cart-item-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a2a43;
+        flex-grow: 1;
+    }
+
+    .cart-item-price {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #28a745;
+        margin-right: 1rem;
+    }
+
+    .btn-remove-from-cart {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #fff;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-remove-from-cart:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(220, 53, 69, 0.2);
+        color: #fff;
+    }
+
+    .cart-total {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #28a745;
+        text-align: right;
+        margin-top: 2rem;
+    }
+
+    .btn-checkout {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #fff;
+        transition: all 0.4s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 2rem;
+    }
+    .btn-checkout:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+    }
+
+    @media (max-width: 767px) {
+        .cart-container {
+            padding: 2rem;
+        }
+        .cart-title {
+            font-size: 1.8rem;
+        }
+        .cart-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .cart-item-price, .btn-remove-from-cart {
+            margin-top: 10px;
+        }
+        .btn-checkout {
+            padding: 12px 20px;
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="cart-section">
+    <div class="container cart-container">
+        <h2 class="cart-title">Your Cart</h2>
+        {% if cart_items %}
+            <div class="list-group">
+                {% for item in cart_items %}
+                    <div class="cart-item list-group-item">
+                        <img src="{% if item.product.image and item.product.image.url %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" 
+                             alt="{{ item.product.name|escape }}" 
+                             onerror="this.src='https://via.placeholder.com/80x60?text=Image+Not+Found';">
+                        <h6 class="cart-item-title">{{ item.product.name|truncatechars:60 }}</h6>
+                        <p class="cart-item-price">Rs {{ item.product.price }} /-</p>
+                        <form action="{% url 'remove_from_cart' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                            <button type="submit" class="btn btn-remove-from-cart">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="cart-total">Total: Rs {{ cart_total }} /-</p>
+            <form action="{% url 'checkout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-checkout">
+                    <i class="fas fa-credit-card"></i> Proceed to Checkout
+                </button>
+            </form>
+        {% else %}
+            <div class="col-12 text-center py-4">
+                <p class="lead">Your cart is empty.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
