@@ -53,7 +53,7 @@ WSGI_APPLICATION = 'network_marketing.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'chain',
+        'NAME': 'products',
         'USER': 'postgres',
         'PASSWORD': 'Gouse@1725',
         'HOST': 'localhost',

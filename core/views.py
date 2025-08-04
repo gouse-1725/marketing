@@ -3,145 +3,458 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import CustomUserCreationForm, ContactForm
-from .models import CustomUser, Product
+from .forms import CustomUserCreationForm, ContactForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
+from .models import CustomUser, Product, Prod_category, OTP
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils import timezone
 import logging
+import random
+import string
 
 logger = logging.getLogger(__name__)
 
+def get_cart(request):
+    """Retrieve or initialize cart from session."""
+    cart = request.session.get('cart', {}) if request.user.is_authenticated else {}
+    cart_items = []
+    cart_total = 0
+    for product_id, quantity in cart.items():
+        try:
+            product = get_object_or_404(Product, id=product_id)
+            cart_items.append({'product': product, 'quantity': quantity})
+            cart_total += product.price * quantity
+        except Exception as e:
+            logger.error(f"Error retrieving product {product_id}: {str(e)}")
+    return cart_items, cart_total, len(cart_items)
+
 def home(request):
     products = Product.objects.all()
-    return render(request, 'home.html', {'products': products})
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'home.html', {
+        'products': products,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
+
+# def register(request):
+#     if request.method == 'POST':
+#         form = CustomUserCreationForm(request.POST)
+#         if form.is_valid():
+#             try:
+#                 user = form.save()
+#                 try:
+#                     subject = 'Welcome to Swarna Sampadha!'
+#                     message = (
+#                         f"Dear {user.mobile_no},\n\n"
+#                         f"Welcome to Swarna Sampadha!\n"
+#                         f"Your account has been successfully created.\n\n"
+#                         f"Phone Number: {user.mobile_no}\n"
+#                         f"Password: {form.cleaned_data['password1']}\n"
+#                         f"Login here: http://127.0.0.1:8000/login/\n\n"
+#                         f"Best regards,\nSwarna Sampadha Team"
+#                     )
+#                     send_mail(
+#                         subject,
+#                         message,
+#                         settings.DEFAULT_FROM_EMAIL,
+#                         [user.email] if user.email else [settings.CONTACT_EMAIL],
+#                         fail_silently=False,
+#                     )
+#                     logger.info(f"Welcome email sent to {user.email or settings.CONTACT_EMAIL}")
+#                 except Exception as e:
+#                     logger.error(f"Failed to send email to {user.email or settings.CONTACT_EMAIL}: {str(e)}")
+#                 messages.success(request, 'Registration successful! Please log in.')
+#                 return redirect('login')
+#             except Exception as e:
+#                 logger.error(f"Error saving user: {str(e)}, Form data: {form.cleaned_data}")
+#                 messages.error(request, 'Registration failed due to a server error. Please try again.')
+#         else:
+#             logger.error(f"Form errors: {form.errors.as_json()}, Form data: {request.POST}")
+#             messages.error(request, 'Please correct the errors below.')
+#     else:
+#         form = CustomUserCreationForm()
+#     categories = Prod_category.objects.all()
+#     recent_items = Product.objects.order_by('-created_at')[:5]
+#     cart_items, cart_total, cart_count = get_cart(request)
+#     return render(request, 'register.html', {
+#         'form': form,
+#         'categories': categories,
+#         'recent_items': recent_items,
+#         'cart_count': cart_count
+#     })
+
+# def login_view(request):
+#     if request.method == 'POST':
+#         mobile_no = request.POST.get('mobile_no')
+#         password = request.POST.get('password')
+#         user = authenticate(request, username=mobile_no, password=password)
+#         if user is not None:
+#             login(request, user)
+#             return redirect('products')
+#         else:
+#             messages.error(request, 'Invalid phone number or password.')
+#     form = AuthenticationForm()
+#     categories = Prod_category.objects.all()
+#     recent_items = Product.objects.order_by('-created_at')[:5]
+#     cart_items, cart_total, cart_count = get_cart(request)
+#     return render(request, 'login.html', {
+#         'form': form,
+#         'categories': categories,
+#         'recent_items': recent_items,
+#         'cart_count': cart_count
+#     })
 
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST, user=request.user if request.user.is_authenticated else None)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
             try:
-                # Send welcome email
-                subject = 'Welcome to Network Marketing!'
-                message = (
-                    f"Dear {user.username},\n\n"
-                    f"Welcome to our Network Marketing platform!\n"
-                    f"Your account has been successfully created.\n\n"
-                    f"Username: {user.username}\n"
-                    f"Password: {form.cleaned_data['password1']}\n"
-                    f"Login here: http://127.0.0.1:8000/login/\n\n"
-                    f"Best regards,\nNetwork Marketing Team"
-                )
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-                logger.info(f"Welcome email sent to {user.email}")
-            except Exception as e:
-                logger.error(f"Failed to send email to {user.email}: {str(e)}")
-            if request.user.is_authenticated:
-                messages.success(request, f"Successfully registered {user.username}.")
-                return redirect('dashboard')
-            else:
+                user = form.save()
+                try:
+                    subject = 'Welcome to Swarna Sampadha!'
+                    message = (
+                        f"Dear {user.mobile_no},\n\n"
+                        f"Welcome to Swarna Sampadha!\n"
+                        f"Your account has been successfully created.\n\n"
+                        f"Phone Number: {user.mobile_no}\n"
+                        f"Login here: http://127.0.0.1:8000/login/\n\n"
+                        f"Best regards,\nSwarna Sampadha Team"
+                    )
+                    if user.email:
+                        send_mail(
+                            subject,
+                            message,
+                            settings.DEFAULT_FROM_EMAIL,
+                            [user.email],
+                            fail_silently=False,
+                        )
+                        logger.info(f"Welcome email sent to {user.email}")
+                except Exception as e:
+                    logger.error(f"Failed to send email to {user.email}: {str(e)}")
                 messages.success(request, 'Registration successful! Please log in.')
                 return redirect('login')
+            except Exception as e:
+                logger.error(f"Error saving user: {str(e)}, Form data: {form.cleaned_data}")
+                messages.error(request, 'Registration failed due to a server error. Please try again.')
         else:
-            logger.error(f"Form errors: {form.errors}")
+            logger.error(f"Form errors: {form.errors.as_json()}, Form data: {request.POST}")
+            messages.error(request, 'Please correct the errors below.')
     else:
-        form = CustomUserCreationForm(user=request.user if request.user.is_authenticated else None)
-    return render(request, 'register.html', {'form': form})
+        form = CustomUserCreationForm()
+    
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    
+    return render(request, 'register.html', {
+        'form': form,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
 
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
+        mobile_no = request.POST.get('mobile_no')
+        password = request.POST.get('password')
+        # Use mobile_no as the username for authentication
+        user = authenticate(request, username=mobile_no, password=password)
+        if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            return redirect('home')  # Redirect to home or another page after login
         else:
-            messages.error(request, 'Invalid username or password.')
-    else:
-        form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+            messages.error(request, 'Invalid phone number or password.')
+    
+    form = AuthenticationForm()
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    
+    return render(request, 'login.html', {
+        'form': form,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
+
 
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-@login_required
-def dashboard(request):
-    user = request.user
-    # Get direct referrals (users where introducer is the current user)
-    direct_referrals = CustomUser.objects.filter(introducer=user)
-    # Get all team members (direct and indirect)
-    def get_team(user, team=None):
-        if team is None:
-            team = []
-        children = CustomUser.objects.filter(parent=user)
-        for child in children:
-            team.append(child)
-            get_team(child, team)
-        return team
-    team_members = get_team(user)
-    form = CustomUserCreationForm(user=user)  # Form for registering new users
-    return render(request, 'dashboard.html', {
-        'referral_count': direct_referrals.count(),
-        'direct_referrals': direct_referrals,
-        'team_members': team_members,
+def forgot_password(request):
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            mobile_no = form.cleaned_data['mobile_no']
+            try:
+                user = CustomUser.objects.get(mobile_no=mobile_no)
+                if not user.email:
+                    messages.error(request, 'No email associated with this mobile number.')
+                    return redirect('forgot_password')
+                otp_code = ''.join(random.choices(string.digits, k=6))
+                expires_at = timezone.now() + timezone.timedelta(minutes=5)
+                OTP.objects.create(user=user, code=otp_code, expires_at=expires_at)
+                try:
+                    subject = 'Password Reset OTP - Swarna Sampadha'
+                    message = (
+                        f"Dear {user.mobile_no},\n\n"
+                        f"Your OTP for password reset is: {otp_code}\n"
+                        f"This OTP is valid for 5 minutes.\n\n"
+                        f"Best regards,\nSwarna Sampadha Team"
+                    )
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                        fail_silently=False,
+                    )
+                    logger.info(f"OTP sent to {user.email}")
+                    request.session['reset_mobile_no'] = mobile_no
+                    messages.success(request, 'OTP sent to your email.')
+                    return redirect('verify_otp')
+                except Exception as e:
+                    logger.error(f"Failed to send OTP to {user.email}: {str(e)}")
+                    messages.error(request, 'Failed to send OTP. Please try again.')
+            except CustomUser.DoesNotExist:
+                messages.error(request, 'No user found with this mobile number.')
+    else:
+        form = ForgotPasswordForm()
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'forgot_password.html', {
         'form': form,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
     })
 
-@login_required
-def user_referrals(request, username):
-    user = get_object_or_404(CustomUser, username=username)
-    # Ensure the user can only view their own team
-    def get_team(current_user, team=None):
-        if team is None:
-            team = []
-        children = CustomUser.objects.filter(parent=current_user)
-        for child in children:
-            team.append(child)
-            get_team(child, team)
-        return team
-    if user != request.user and user not in get_team(request.user):
-        messages.error(request, "You don't have permission to view this user's referrals.")
-        return redirect('dashboard')
-    direct_referrals = CustomUser.objects.filter(introducer=user)
-    team_members = get_team(user)
-    return render(request, 'user_referrals.html', {
-        'selected_user': user,
-        'direct_referrals': direct_referrals,
-        'team_members': team_members,
+def verify_otp(request):
+    mobile_no = request.session.get('reset_mobile_no')
+    if not mobile_no:
+        messages.error(request, 'Invalid session. Please start the password reset process again.')
+        return redirect('forgot_password')
+    try:
+        user = CustomUser.objects.get(mobile_no=mobile_no)
+    except CustomUser.DoesNotExist:
+        messages.error(request, 'Invalid user. Please start the password reset process again.')
+        return redirect('forgot_password')
+    
+    if request.method == 'POST':
+        form = OTPForm(request.POST)
+        if form.is_valid():
+            otp_code = form.cleaned_data['otp']
+            try:
+                otp = OTP.objects.filter(user=user, code=otp_code).latest('created_at')
+                if otp.is_valid():
+                    request.session['otp_verified'] = True
+                    messages.success(request, 'OTP verified successfully.')
+                    return redirect('reset_password')
+                else:
+                    messages.error(request, 'OTP has expired. Please request a new one.')
+            except OTP.DoesNotExist:
+                messages.error(request, 'Invalid OTP.')
+            except Exception as e:
+                logger.error(f"Error verifying OTP for {user.mobile_no}: {str(e)}")
+                messages.error(request, 'Error verifying OTP. Please try again.')
+    else:
+        form = OTPForm()
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'verify_otp.html', {
+        'form': form,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
+
+def reset_password(request):
+    mobile_no = request.session.get('reset_mobile_no')
+    if not mobile_no or not request.session.get('otp_verified'):
+        messages.error(request, 'Invalid session or OTP not verified. Please start the password reset process again.')
+        return redirect('forgot_password')
+    try:
+        user = CustomUser.objects.get(mobile_no=mobile_no)
+    except CustomUser.DoesNotExist:
+        messages.error(request, 'Invalid user. Please start the password reset process again.')
+        return redirect('forgot_password')
+    
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            try:
+                user.set_password(form.cleaned_data['new_password1'])
+                user.save()
+                OTP.objects.filter(user=user).delete()
+                del request.session['reset_mobile_no']
+                del request.session['otp_verified']
+                messages.success(request, 'Password reset successfully. Please log in.')
+                return redirect('login')
+            except Exception as e:
+                logger.error(f"Error resetting password for {user.mobile_no}: {str(e)}")
+                messages.error(request, 'Error resetting password. Please try again.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ResetPasswordForm()
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'reset_password.html', {
+        'form': form,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
     })
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
-    return render(request, 'product_detail.html', {'product': product})
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'product_detail.html', {
+        'product': product,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
 
 def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            messages.success(request, 'Your message has been sent!')
-            return redirect('contact')
+            try:
+                subject = f"Contact Form: {form.cleaned_data['subject']}"
+                message = (
+                    f"Name: {form.cleaned_data['name']}\n"
+                    f"Email: {form.cleaned_data['email']}\n\n"
+                    f"Message:\n{form.cleaned_data['message']}"
+                )
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.CONTACT_EMAIL],
+                    fail_silently=False,
+                )
+                logger.info(f"Contact form email sent from {form.cleaned_data['email']}")
+                messages.success(request, 'Your message has been sent!')
+                return redirect('contact')
+            except Exception as e:
+                logger.error(f"Failed to send contact email: {str(e)}")
+                messages.error(request, 'Failed to send message. Please try again.')
     else:
         form = ContactForm()
-    return render(request, 'contact.html', {'form': form})
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'contact.html', {
+        'form': form,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
 
 def business_plan(request):
-    return render(request, 'business_plan.html')
-
-@login_required
-def tree(request):
-    users = CustomUser.objects.all()
-    return render(request, 'tree.html', {'users': users})
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'business_plan.html', {
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
 
 def about(request):
-    return render(request, 'about.html')
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'about.html', {
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
 
 def products(request):
     products = Product.objects.all()
-    return render(request, 'products.html', {'products': products})
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'products.html', {
+        'products': products,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
+
+def category_products(request, slug):
+    category = get_object_or_404(Prod_category, slug=slug)
+    products = Product.objects.filter(category=category)
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'products.html', {
+        'products': products,
+        'category': category,
+        'categories': categories,
+        'recent_items': recent_items,
+        'cart_count': cart_count
+    })
+
+@login_required(login_url='login')
+def add_to_cart(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        cart = request.session.get('cart', {})
+        cart[product_id] = cart.get(product_id, 0) + 1
+        request.session['cart'] = cart
+        messages.success(request, 'Product added to cart!')
+        return redirect(request.META.get('HTTP_REFERER', 'products'))
+    return redirect('products')
+
+def remove_from_cart(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        cart = request.session.get('cart', {})
+        if product_id in cart:
+            del cart[product_id]
+            request.session['cart'] = cart
+            messages.success(request, 'Product removed from cart!')
+        return redirect('cart')
+    return redirect('cart')
+
+def cart(request):
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by('-created_at')[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+    return render(request, 'cart.html', {
+        'cart_items': cart_items,
+        'cart_total': cart_total,
+        'cart_count': cart_count,
+        'categories': categories,
+        'recent_items': recent_items
+    })
+
+@login_required
+def checkout(request):
+    if request.method == 'POST':
+        cart_items, cart_total, cart_count = get_cart(request)
+        if not cart_items:
+            messages.error(request, 'Your cart is empty.')
+            return redirect('cart')
+        try:
+            request.session['cart'] = {}
+            messages.success(request, 'Payment successful! Your order has been placed.')
+            return redirect('products')
+        except Exception as e:
+            logger.error(f"Payment processing failed: {str(e)}")
+            messages.error(request, 'Payment failed. Please try again.')
+            return redirect('cart')
+    return redirect('cart')
