@@ -3,8 +3,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import CustomUserCreationForm, ContactForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
-from .models import CustomUser, Product, Prod_category, OTP, Order, OrderItem
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
@@ -15,6 +13,9 @@ import qrcode
 import os
 import sys
 from PIL import Image
+from .forms import CustomUserCreationForm, ContactForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
+from .models import CustomUser, Product, Prod_category, OTP, Order, OrderItem
+from .utils import send_sms
 
 logger = logging.getLogger(__name__)
 
@@ -439,6 +440,7 @@ def payment(request):
             'categories': categories,
             'recent_items': recent_items,
             'qr_code_url': '/static/images/payment_qr.png',
+            'upi_url': upi_url,  # Pass UPI URL to template
             'owner_mobile_no': settings.OWNER_MOBILE_NO,
             'owner_email': settings.OWNER_EMAIL,
         })
@@ -459,7 +461,8 @@ def checkout(request):
             # Create an Order
             order = Order.objects.create(
                 user=request.user,
-                total_amount=cart_total
+                total_amount=cart_total,
+                status='success'  # Mark as success upon confirmation
             )
             
             # Create OrderItems
@@ -471,10 +474,22 @@ def checkout(request):
                     item_total=item['item_total']
                 )
             
+            # Send SMS confirmation
+            sms_message = (
+                f"Dear {request.user.mobile_no},\n"
+                f"Your order {order.order_id} for ₹{cart_total} has been placed successfully.\n"
+                f"Thank you for shopping with Swarna Sampadha!"
+            )
+            sms_response = send_sms([f"+91{request.user.mobile_no}"], sms_message)
+            if sms_response and sms_response.get("type") == "success":
+                logger.info(f"SMS confirmation sent to {request.user.mobile_no} for order {order.order_id}")
+            else:
+                logger.error(f"Failed to send SMS confirmation to {request.user.mobile_no}")
+            
             # Clear the cart
             request.session['cart'] = {}
-            messages.success(request, 'Payment successful! Your order has been placed.')
-            return redirect('products')
+            messages.success(request, f'Payment successful! Your order ID is {order.order_id}.')
+            return redirect('recent_purchases')
         except Exception as e:
             logger.error(f"Payment processing failed: {str(e)}")
             messages.error(request, 'Payment failed. Please try again.')
@@ -487,8 +502,8 @@ def recent_purchases(request):
     recent_items = Product.objects.order_by('-created_at')[:5]
     cart_items, cart_total, cart_count = get_cart(request)
     
-    # Fetch user's orders, most recent first
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    # Fetch user's successful orders, most recent first
+    orders = Order.objects.filter(user=request.user, status='success').order_by('-created_at')
     
     return render(request, 'recent_purchases.html', {
         'orders': orders,

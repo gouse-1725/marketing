@@ -80,18 +80,30 @@ class OTP(models.Model):
         return f"OTP for {self.user.mobile_no} - {self.code}"
 
 class Order(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='orders')
-    total_amount = models.FloatField()
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('success', 'Success'),
+            ('failed', 'Failed')
+        ],
+        default='pending'
+    )
+    order_id = models.CharField(max_length=50, unique=True, blank=True)
 
-    def __str__(self):
-        return f"Order {self.id} by {self.user.mobile_no} on {self.created_at}"
+    def save(self, *args, **kwargs):
+        if not self.order_id:
+            self.order_id = f"ORDER_{self.pk}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        super().save(*args, **kwargs)
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    item_total = models.FloatField()
+    item_total = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in Order {self.order.id}"
