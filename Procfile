@@ -1,0 +1,1 @@
+web: gunicorn network_marketing.wsgi --log-file -
