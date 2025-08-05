@@ -2,37 +2,31 @@
 {% load static %}
 
 {% block title %}Recent Purchases - Swarna Sampadha{% endblock %}
-{% block hero %}
-{% endblock %}
+{% block hero %}{% endblock %}
 {% block content %}
 <style>
     .purchases-section {
         background-color: #f0f2f5;
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
+        min-height: 100vh;
         padding: 3rem 1rem;
     }
-
     .purchases-container {
         background-color: #ffffff;
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        padding: 2.5rem;
-        max-width: 1200px;
-        margin: auto;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
     }
-
-    .purchases-title {
+    .purchases-container .category-title {
         font-family: 'Merriweather', serif;
-        font-size: 2.2rem;
+        font-size: 2rem;
         font-weight: 800;
         color: #1a2a43;
         text-align: center;
-        margin-bottom: 2.5rem;
-        position: relative;
+        margin-bottom: 2rem;
     }
-    .purchases-title::after {
+    .purchases-container .category-title::after {
         content: '';
         display: block;
         width: 70px;
@@ -41,140 +35,84 @@
         margin: 10px auto 0;
         border-radius: 2px;
     }
-
-    .order-item {
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
+    .order-card {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
     }
-
-    .order-item:hover {
-        background-color: #e9ecef;
-    }
-
-    .order-item img {
-        width: 80px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 8px;
-        margin-right: 1.5rem;
-    }
-
-    .order-item-title {
-        font-size: 1rem;
-        font-weight: 600;
+    .order-card h3 {
+        font-size: 1.2rem;
         color: #1a2a43;
-        flex-grow: 1;
-    }
-
-    .order-item-price {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: #28a745;
-        margin-right: 1rem;
-    }
-
-    .order-total {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #28a745;
-        text-align: right;
-        margin-top: 1rem;
-    }
-
-    .order-date {
-        font-size: 1rem;
-        color: #6c757d;
-        text-align: right;
         margin-bottom: 1rem;
     }
-
-    .btn-continue {
-        background: linear-gradient(45deg, #007bff, #0056b3);
-        border: none;
-        padding: 15px 30px;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #fff;
-        transition: all 0.4s ease;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 2rem;
+    .order-card p {
+        margin: 0.5rem 0;
+        color: #495057;
     }
-    .btn-continue:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+    .order-card .status-success {
+        color: #28a745;
+        font-weight: 600;
     }
-
-    .alert {
-        margin-bottom: 2rem;
+    .order-items {
+        margin-top: 1rem;
     }
-
+    .order-items ul {
+        list-style: none;
+        padding: 0;
+    }
+    .order-items li {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+    }
     @media (max-width: 767px) {
         .purchases-container {
-            padding: 2rem;
+            padding: 1.5rem;
+            margin: 1rem;
         }
-        .purchases-title {
-            font-size: 1.8rem;
+        .purchases-container .category-title {
+            font-size: 1.6rem;
         }
-        .order-item {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .order-item-price {
-            margin-top: 10px;
-        }
-        .btn-continue {
-            padding: 12px 20px;
-            font-size: 1rem;
+        .order-card {
+            padding: 1rem;
         }
     }
 </style>
 
 <div class="purchases-section">
-    <div class="container purchases-container">
-        <h2 class="purchases-title">Your Recent Purchases</h2>
+    <div class="purchases-container">
+        <h2 class="category-title">Your Recent Purchases</h2>
+        
         {% if messages %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {% for message in messages %}
                     <p>{{ message }}</p>
                 {% endfor %}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endif %}
+        
         {% if orders %}
             {% for order in orders %}
-                <div class="order-date">Order placed on {{ order.created_at|date:"F d, Y H:i" }}</div>
-                <div class="list-group">
-                    {% for item in order.items.all %}
-                        <div class="order-item list-group-item">
-                            <img src="{% if item.product.image and item.product.image.url %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" 
-                                 alt="{{ item.product.name|escape }}" 
-                                 onerror="this.src='https://via.placeholder.com/80x60?text=Image+Not+Found';">
-                            <h6 class="order-item-title">{{ item.product.name|truncatechars:60 }} (Qty: {{ item.quantity }})</h6>
-                            <p class="order-item-price">Rs {{ item.item_total|floatformat:2 }} /-</p>
+                {% if order.status == 'success' %}
+                    <div class="order-card">
+                        <h3>Order ID: {{ order.order_id }}</h3>
+                        <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                        <p><strong>Date:</strong> {{ order.created_at|date:"F d, Y H:i" }}</p>
+                        <p><strong>Status:</strong> <span class="status-success">Successful</span></p>
+                        <div class="order-items">
+                            <strong>Items:</strong>
+                            <ul>
+                                {% for item in order.orderitem_set.all %}
+                                    <li>{{ item.product.name }} (Qty: {{ item.quantity }}) - ₹{{ item.item_total }}</li>
+                                {% endfor %}
+                            </ul>
                         </div>
-                    {% endfor %}
-                </div>
-                <p class="order-total">Total: Rs {{ order.total_amount|floatformat:2 }} /-</p>
+                    </div>
+                {% endif %}
             {% endfor %}
-            <a href="{% url 'products' %}" class="btn btn-continue">
-                <i class="fas fa-shopping-bag"></i> Continue Shopping
-            </a>
         {% else %}
-            <div class="col-12 text-center py-4">
-                <p class="lead">You have no recent purchases.</p>
-                <a href="{% url 'products' %}" class="btn btn-continue">
-                    <i class="fas fa-shopping-bag"></i> Continue Shopping
-                </a>
-            </div>
+            <p>No successful purchases found.</p>
         {% endif %}
     </div>
 </div>

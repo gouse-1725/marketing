@@ -1,12 +1,15 @@
 import os
 from pathlib import Path
 import dj_database_url 
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'your-secret-key-change-this-in-production'
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -135,3 +138,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'abdulgouse757@gmail.com'
 EMAIL_HOST_PASSWORD = 'fzyr cmyg dckz yivs'
 DEFAULT_FROM_EMAIL = 'abdulgouse757@gmail.com'
+
+
+MSG91_AUTH_KEY = os.getenv("MSG91_AUTH_KEY")
+MSG91_SENDER_ID = os.getenv("MSG91_SENDER_ID")
