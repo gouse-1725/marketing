@@ -6,8 +6,23 @@
 {% block hero %}{% endblock %}
 {% block content %}
 <style>
+    :root {
+        --primary-color: #007bff;
+        --secondary-color: #28a745;
+        --text-color: #1a2a43;
+        --subtext-color: #6c757d;
+        --bg-light: #f0f2f5;
+        --bg-card: #ffffff;
+        --bg-details: #f8f9fa;
+        --border-color: #dee2e6;
+    }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
     .payment-section {
-        background-color: #f0f2f5;
+        background-color: var(--bg-light);
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -16,9 +31,9 @@
     }
 
     .payment-container {
-        background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        background-color: var(--bg-card);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
         padding: 3rem;
         max-width: 550px;
         width: 100%;
@@ -26,27 +41,38 @@
         animation: fadeIn 0.8s ease-out;
     }
 
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     .payment-container .category-title {
         font-family: 'Merriweather', serif;
-        font-size: 2.2rem;
+        font-size: 2.5rem;
         font-weight: 800;
-        color: #1a2a43;
+        color: var(--text-color);
         text-align: center;
         margin-bottom: 0.5rem;
         position: relative;
     }
     .payment-container .category-subtitle {
         font-size: 1rem;
-        color: #6c757d;
+        color: var(--subtext-color);
         text-align: center;
         margin-bottom: 2.5rem;
     }
     .payment-container .category-title::after {
         content: '';
         display: block;
-        width: 70px;
+        width: 80px;
         height: 4px;
-        background-color: #007bff;
+        background-color: var(--primary-color);
         margin: 10px auto 0;
         border-radius: 2px;
     }
@@ -58,53 +84,71 @@
     .qr-code-container img {
         max-width: 200px;
         width: 100%;
-        border: 1px solid #dee2e6;
-        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .upi-apps-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .upi-app-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 90px;
+        height: 90px;
+        background-color: var(--bg-light);
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--text-color);
+    }
+    .upi-app-button:hover {
+        transform: translateY(-5px);
+        background-color: #e2e6ea;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .upi-app-button img {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 8px;
+    }
+    .upi-app-button span {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-color);
     }
 
     .payment-details {
-        background-color: #f8f9fa;
+        background-color: var(--bg-details);
         padding: 1.5rem;
-        border-radius: 10px;
+        border-radius: 15px;
         margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
     }
     .payment-details p {
         margin: 0.5rem 0;
         font-size: 1rem;
-        color: #495057;
+        color: var(--subtext-color);
     }
     .payment-details strong {
-        color: #1a2a43;
-    }
-
-    .btn-upi {
-        background: linear-gradient(45deg, #007bff, #0056b3);
-        border: none;
-        padding: 12px 20px;
-        border-radius: 50px;
+        color: var(--text-color);
         font-weight: 600;
-        font-size: 1rem;
-        color: #fff;
-        text-align: center;
-        transition: all 0.4s ease;
-        margin: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 150px;
-    }
-    .btn-upi:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
-    }
-    .btn-upi img {
-        width: 24px;
-        height: 24px;
     }
 
     .btn-confirm {
-        background: linear-gradient(45deg, #28a745, #218838);
+        background: linear-gradient(45deg, var(--secondary-color), #1e7e34);
         border: none;
         padding: 15px 30px;
         border-radius: 50px;
@@ -129,14 +173,6 @@
         font-size: 1.2rem;
     }
 
-    .upi-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 2rem;
-    }
-
     @media (max-width: 767px) {
         .payment-container {
             padding: 2rem;
@@ -145,19 +181,26 @@
         .payment-container .category-title {
             font-size: 1.8rem;
         }
-        .btn-upi, .btn-confirm {
-            padding: 10px 15px;
-            font-size: 0.9rem;
-        }
         .qr-code-container img {
             max-width: 150px;
         }
-        .btn-upi {
-            width: 120px;
+        .upi-apps-grid {
+            gap: 1rem;
         }
-        .btn-upi img {
-            width: 20px;
-            height: 20px;
+        .upi-app-button {
+            width: 80px;
+            height: 80px;
+        }
+        .upi-app-button img {
+            width: 40px;
+            height: 40px;
+        }
+        .upi-app-button span {
+            font-size: 0.8rem;
+        }
+        .btn-confirm {
+            font-size: 1rem;
+            padding: 12px 20px;
         }
     }
 </style>
@@ -180,15 +223,18 @@
             <img src="{{ qr_code_url }}" alt="Payment QR Code" />
         </div>
         
-        <div class="upi-buttons">
-            <a href="{{ upi_url }}" class="btn-upi phonepe">
-                <img src="{% static 'images/phonepe.png' %}" alt="PhonePe" /> PhonePe
+        <div class="upi-apps-grid">
+            <a href="#" class="upi-app-button" data-app="phonepe" data-upi-url="{{ upi_url }}">
+                <img src="{% static 'images/phonepe.png' %}" alt="PhonePe" />
+                <span>PhonePe</span>
             </a>
-            <a href="{{ upi_url }}" class="btn-upi gpay">
-                <img src="{% static 'images/gpay.png' %}" alt="Google Pay" /> Google Pay
+            <a href="#" class="upi-app-button" data-app="gpay" data-upi-url="{{ upi_url }}">
+                <img src="{% static 'images/gpay.png' %}" alt="Google Pay" />
+                <span>Google Pay</span>
             </a>
-            <a href="{{ upi_url }}" class="btn-upi paytm">
-                <img src="{% static 'images/paytm.png' %}" alt="Paytm" /> Paytm
+            <a href="#" class="upi-app-button" data-app="paytm" data-upi-url="{{ upi_url }}">
+                <img src="{% static 'images/paytm.png' %}" alt="Paytm" />
+                <span>Paytm</span>
             </a>
         </div>
         
@@ -207,4 +253,33 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const upiButtons = document.querySelectorAll('.upi-app-button');
+    const upiUrl = '{{ upi_url|safe }}'; // Use 'safe' filter to prevent escaping special characters
+
+    upiButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Log the URL to console for debugging
+            console.log("Attempting to open UPI URL:", upiUrl);
+
+            // Attempt to open the deep link
+            window.location.href = upiUrl;
+
+            // Simple fallback logic:
+            // Set a timeout to check if the user is still on the page.
+            // If they are, the app probably didn't open.
+            setTimeout(function() {
+                if (document.visibilityState === 'visible') {
+                    // Display a more user-friendly message
+                    alert("The UPI app might not be installed or the link was blocked. Please use the QR code to pay manually.");
+                }
+            }, 1000); // 1 second timeout
+        });
+    });
+});
+</script>
 {% endblock %}
