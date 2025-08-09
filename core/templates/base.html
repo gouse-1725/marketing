@@ -87,23 +87,6 @@
         .navbar-nav .dropdown-item .fas {
             min-width: 20px;
         }
-        @media (max-width: 991px) {
-            .navbar-nav {
-                margin-top: 15px;
-            }
-            .navbar-collapse {
-                padding: 0 20px;
-            }
-            .navbar-brand img {
-                height: 35px;
-            }
-            .navbar-nav .nav-link {
-                margin-right: 0;
-                margin-bottom: 5px;
-                text-align: center;
-                border-radius: 8px;
-            }
-        }
         #main-content {
             padding-top: 3rem;
             flex-grow: 1;
@@ -284,9 +267,57 @@
             margin-right: auto;
         }
 
+        /* Mobile-specific changes */
         @media (max-width: 991px) {
-            .search-container {
-                display: none;
+            .main-navbar {
+                flex-wrap: nowrap;
+            }
+            .navbar-brand {
+                flex-grow: 1;
+            }
+            .navbar-toggler {
+                margin-left: auto;
+            }
+            .navbar-collapse {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: #fff;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                border-top: 1px solid #dee2e6;
+                padding: 1rem;
+                z-index: 1000;
+            }
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
+            }
+            .navbar-nav .nav-item {
+                width: 100%;
+                text-align: center;
+            }
+            .navbar-nav .nav-link {
+                margin: 5px 0;
+            }
+            .navbar-nav .dropdown-menu {
+                width: 100%;
+                text-align: center;
+            }
+            .navbar-nav .dropdown-item {
+                justify-content: center;
+            }
+            .navbar-nav .ms-auto {
+                margin-top: 10px;
+                flex-direction: row;
+                justify-content: center;
+            }
+            .navbar-nav .ms-auto .nav-item {
+                width: auto;
+                margin: 0 5px;
+            }
+            .cart-icon, .login-dropdown {
+                margin: 0;
             }
         }
     </style>
@@ -302,7 +333,6 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainNavbar">
-                
                 <ul class="navbar-nav main-nav mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="{% url 'products' %}">Products</a></li>
                     <li class="nav-item dropdown">
