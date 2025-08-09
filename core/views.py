@@ -57,7 +57,7 @@ def register(request):
             try:
                 user = form.save()
                 try:
-                    subject = 'Welcome to Swarna Sampadha!'
+                    subject = 'Welcome to Dinesh Ayurvedics!'
                     message = (
                         f"Dear {user.mobile_no},\n\n"
                         f"Welcome to Dinesh Ayurvedics!\n"
