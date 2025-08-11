@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Swarna Sampadha{% endblock %}</title>
+    <title>{% block title %}Dinesh Ayurvedics{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'weblogo.png' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
@@ -319,7 +319,27 @@
             .cart-icon, .login-dropdown {
                 margin: 0;
             }
+
+            /* Styling for the Amazon ad section */
+.amazon-ad {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    text-align: center; /* Center the content */
+}
+
+/* Ensure the image is fully responsive within its container */
+.amazon-ad img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
+}
         }
+
     </style>
 </head>
 <body>
@@ -432,6 +452,12 @@
                                 </a>
                             {% endfor %}
                         </div>
+                        <div class="amazon-ad mt-4">
+        <h5 class="font-weight-bold mb-3">Featured Product</h5>
+        <a href="https://amzn.to/3Hsxl5l" target="_blank" rel="noopener noreferrer">
+            <img src="https://via.placeholder.com/300x250?text=Your+Amazon+Ad+Here" class="img-fluid" alt="Amazon Featured Product">
+        </a>
+    </div>
                     </div>
                 {% endif %}
             </div>
