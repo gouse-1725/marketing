@@ -77,27 +77,41 @@
         border-radius: 2px;
     }
 
-    .qr-code-container {
-        text-align: center;
+    .payment-methods {
         margin-bottom: 2rem;
     }
-    .qr-code-container img {
-        max-width: 200px;
-        width: 100%;
-        border: 1px solid var(--border-color);
-        border-radius: 15px;
-        padding: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    .payment-methods .nav-tabs {
+        border-bottom: 1px solid var(--border-color);
+        justify-content: center;
     }
-
+    .payment-methods .nav-link {
+        color: var(--text-color);
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px 10px 0 0;
+        transition: all 0.3s ease;
+    }
+    .payment-methods .nav-link.active {
+        background-color: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-color);
+    }
+    .payment-methods .nav-link:hover {
+        background-color: #e9ecef;
+    }
+    .tab-content {
+        padding: 1.5rem;
+        background-color: var(--bg-details);
+        border: 1px solid var(--border-color);
+        border-radius: 0 0 15px 15px;
+    }
     .upi-apps-grid {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 2rem;
-        margin-bottom: 2rem;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
     }
-
     .upi-app-button {
         display: flex;
         flex-direction: column;
@@ -127,9 +141,15 @@
     .upi-app-button span {
         font-size: 0.9rem;
         font-weight: 600;
-        color: var(--text-color);
     }
-
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        padding: 10px;
+    }
     .payment-details {
         background-color: var(--bg-details);
         padding: 1.5rem;
@@ -146,7 +166,6 @@
         color: var(--text-color);
         font-weight: 600;
     }
-
     .btn-confirm {
         background: linear-gradient(45deg, var(--secondary-color), #1e7e34);
         border: none;
@@ -169,10 +188,9 @@
         transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
     }
-    .btn-confirm .fa-check {
+    .btn-confirm .fa-credit-card {
         font-size: 1.2rem;
     }
-
     @media (max-width: 767px) {
         .payment-container {
             padding: 2rem;
@@ -180,9 +198,6 @@
         }
         .payment-container .category-title {
             font-size: 1.8rem;
-        }
-        .qr-code-container img {
-            max-width: 150px;
         }
         .upi-apps-grid {
             gap: 1rem;
@@ -208,7 +223,7 @@
 <div class="payment-section">
     <div class="payment-container">
         <h2 class="category-title">Complete Your Payment</h2>
-        <p class="category-subtitle">Scan the QR code or use a UPI app to pay.</p>
+        <p class="category-subtitle">Choose your preferred payment method.</p>
         
         {% if messages %}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -219,25 +234,6 @@
             </div>
         {% endif %}
         
-        <div class="qr-code-container">
-            <img src="{{ qr_code_url }}" alt="Payment QR Code" />
-        </div>
-        
-        <div class="upi-apps-grid">
-            <a href="#" class="upi-app-button" data-app="phonepe" data-upi-url="{{ upi_url }}">
-                <img src="{% static 'images/phonepe.png' %}" alt="PhonePe" />
-                <span>PhonePe</span>
-            </a>
-            <a href="#" class="upi-app-button" data-app="gpay" data-upi-url="{{ upi_url }}">
-                <img src="{% static 'images/gpay.png' %}" alt="Google Pay" />
-                <span>Google Pay</span>
-            </a>
-            <a href="#" class="upi-app-button" data-app="paytm" data-upi-url="{{ upi_url }}">
-                <img src="{% static 'images/paytm.png' %}" alt="Paytm" />
-                <span>Paytm</span>
-            </a>
-        </div>
-        
         <div class="payment-details">
             <p><strong>Total Amount:</strong> ₹{{ cart_total }}</p>
             <p><strong>Pay To:</strong> Dinesh Ayurvedics</p>
@@ -245,41 +241,88 @@
             <p><strong>Email:</strong> {{ owner_email }}</p>
         </div>
         
-        <form method="post" action="{% url 'checkout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn-confirm">
-                <i class="fas fa-check"></i> Confirm Payment
-            </button>
-        </form>
+        {% if payment_data %}
+            <form name="payu_form" action="{{ payu_url }}" method="post">
+                {% for key, value in payment_data.items %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endfor %}
+                <button type="submit" class="btn-confirm">
+                    <i class="fas fa-credit-card"></i> Proceed with {{ payment_method|title }}{% if upi_id %} ({{ upi_id }}){% endif %}
+                </button>
+            </form>
+        {% else %}
+            <div class="payment-methods">
+                <ul class="nav nav-tabs" id="paymentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="upi-tab" data-bs-toggle="tab" data-bs-target="#upi" type="button" role="tab">UPI</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="card-tab" data-bs-toggle="tab" data-bs-target="#card" type="button" role="tab">Card</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="netbanking-tab" data-bs-toggle="tab" data-bs-target="#netbanking" type="button" role="tab">Net Banking</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="paymentTabContent">
+                    <div class="tab-pane fade show active" id="upi" role="tabpanel">
+                        <form method="post" action="{% url 'payment' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="upi">
+                            <div class="form-group">
+                                <label for="upi_id">Enter UPI ID</label>
+                                <input type="text" class="form-control" id="upi_id" name="upi_id" placeholder="yourname@upi" value="{{ upi_id }}">
+                            </div>
+                            <div class="upi-apps-grid">
+                                <button type="submit" name="payment_method" value="phonepe" class="upi-app-button">
+                                    <img src="{% static 'images/phonepe.png' %}" alt="PhonePe">
+                                    <span>PhonePe</span>
+                                </button>
+                                <button type="submit" name="payment_method" value="gpay" class="upi-app-button">
+                                    <img src="{% static 'images/gpay.png' %}" alt="Google Pay">
+                                    <span>Google Pay</span>
+                                </button>
+                                <button type="submit" name="payment_method" value="paytm" class="upi-app-button">
+                                    <img src="{% static 'images/paytm.png' %}" alt="Paytm">
+                                    <span>Paytm</span>
+                                </button>
+                            </div>
+                            <button type="submit" class="btn-confirm">
+                                <i class="fas fa-credit-card"></i> Pay with UPI
+                            </button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="card" role="tabpanel">
+                        <form method="post" action="{% url 'payment' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="card">
+                            <button type="submit" class="btn-confirm">
+                                <i class="fas fa-credit-card"></i> Pay with Credit/Debit Card
+                            </button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="netbanking" role="tabpanel">
+                        <form method="post" action="{% url 'payment' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="netbanking">
+                            <button type="submit" class="btn-confirm">
+                                <i class="fas fa-credit-card"></i> Pay with Net Banking
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const upiButtons = document.querySelectorAll('.upi-app-button');
-    const upiUrl = '{{ upi_url|safe }}'; // Use 'safe' filter to prevent escaping special characters
-
-    upiButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Log the URL to console for debugging
-            console.log("Attempting to open UPI URL:", upiUrl);
-
-            // Attempt to open the deep link 
-            window.location.href = upiUrl;
-
-            // Simple fallback logic:
-            // Set a timeout to check if the user is still on the page.
-            // If they are, the app probably didn't open.
-            setTimeout(function() {
-                if (document.visibilityState === 'visible') {
-                    // Display a more user-friendly message
-                    alert("The UPI app might not be installed or the link was blocked. Please use the QR code to pay manually.");
-                }
-            }, 1000); // 1 second timeout
-        });
-    });
+    // Auto-submit PayU form if payment_data exists
+    if (document.forms['payu_form']) {
+        setTimeout(function() {
+            document.forms['payu_form'].submit();
+        }, 500);
+    }
 });
 </script>
 {% endblock %}
