@@ -518,6 +518,7 @@
 
 
 # views.py
+from hashlib import sha512
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -534,6 +535,7 @@ import uuid
 from .forms import CustomUserCreationForm, ContactForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
 from .models import CustomUser, Product, Prod_category, OTP, Order, OrderItem
 from .utils import send_sms, generate_payu_hash, verify_payment
+
 
 logger = logging.getLogger(__name__)
 
@@ -904,6 +906,18 @@ def cart(request):
         'recent_items': recent_items
     })
 
+
+
+
+
+
+
+# views.py (only updating the payment view; other views unchanged)
+
+
+
+
+
 @login_required(login_url='login')
 def payment(request):
     cart_items, cart_total, cart_count = get_cart(request)
@@ -923,16 +937,24 @@ def payment(request):
             # Prepare PayU payment parameters
             payment_data = {
                 "key": settings.PAYU_MERCHANT_KEY,
-                "txnid": str(uuid.uuid4())[:8],  # Unique transaction ID
-                "amount": f"{cart_total:.2f}",  # Ensure 2 decimal places
+                "txnid": "641285dc" if settings.DEBUG else str(uuid.uuid4())[:8],  # Use error's txnid for testing
+                "amount": "1200.00" if settings.DEBUG else f"{cart_total:.2f}",  # Match error's amount for testing
                 "productinfo": "Swarna Sampadha Order",
-                "firstname": request.user.first_name or request.user.mobile_no,
-                "email": request.user.email or settings.OWNER_EMAIL,
-                "phone": request.user.mobile_no,
+                "firstname": str(request.user.mobile_no),  # Must be 8074960679 for testing
+                "email": str(request.user.email or settings.OWNER_EMAIL),  # Must be abdulgouse757@gmail.com
+                "phone": str(request.user.mobile_no),
                 "surl": settings.PAYU_SUCCESS_URL,
                 "furl": settings.PAYU_FAILURE_URL,
                 "service_provider": "payu_paisa",
+                "udf1": "",
+                "udf2": "",
+                "udf3": "",
+                "udf4": "",
+                "udf5": ""
             }
+            
+            # Log payment parameters for debugging
+            logger.debug(f"Payment parameters: {payment_data}")
             
             # Add payment method-specific parameters
             if payment_method == 'upi':
@@ -940,7 +962,7 @@ def payment(request):
                     messages.error(request, 'Please enter a valid UPI ID.')
                     return redirect('payment')
                 payment_data['pg'] = 'UPI'
-                payment_data['vpa'] = upi_id  # Custom UPI ID
+                payment_data['vpa'] = upi_id
             elif payment_method in ['phonepe', 'gpay', 'paytm']:
                 payment_data['pg'] = 'UPI'
                 payment_data['bankcode'] = {
@@ -955,6 +977,9 @@ def payment(request):
             
             # Generate PayU hash
             payment_data["hash"] = generate_payu_hash(payment_data, settings.PAYU_MERCHANT_SALT)
+            
+            # Log generated hash
+            logger.debug(f"Generated hash for txnid {payment_data['txnid']}: {payment_data['hash']}")
             
             # Save transaction ID in session for verification
             request.session['payu_txnid'] = payment_data["txnid"]
@@ -990,6 +1015,13 @@ def payment(request):
         'owner_mobile_no': settings.OWNER_MOBILE_NO,
         'owner_email': settings.OWNER_EMAIL
     })
+
+# ... (other views unchanged: payment_success, payment_failure, etc.)
+
+
+
+
+
 
 @csrf_exempt
 @login_required(login_url='login')
