@@ -516,8 +516,6 @@
 
 
 
-
-# views.py
 from hashlib import sha512
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -532,10 +530,9 @@ import logging
 import random
 import string
 import uuid
+import requests
 from .forms import CustomUserCreationForm, ContactForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
 from .models import CustomUser, Product, Prod_category, OTP, Order, OrderItem
-from .utils import send_sms, generate_payu_hash, verify_payment
-
 
 logger = logging.getLogger(__name__)
 
@@ -883,6 +880,7 @@ def add_to_cart(request):
         return redirect(request.META.get('HTTP_REFERER', 'products'))
     return redirect('products')
 
+@login_required(login_url='login')
 def remove_from_cart(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -894,6 +892,7 @@ def remove_from_cart(request):
         return redirect('cart')
     return redirect('cart')
 
+@login_required(login_url='login')
 def cart(request):
     categories = Prod_category.objects.all()
     recent_items = Product.objects.order_by('-created_at')[:5]
@@ -905,18 +904,6 @@ def cart(request):
         'categories': categories,
         'recent_items': recent_items
     })
-
-
-
-
-
-
-
-# views.py (only updating the payment view; other views unchanged)
-
-
-
-
 
 @login_required(login_url='login')
 def payment(request):
@@ -934,14 +921,17 @@ def payment(request):
             if cart_total <= 0:
                 raise ValueError("Cart total must be greater than zero")
             
+            # Generate unique transaction ID
+            txnid = str(uuid.uuid4().hex)[:20]
+            
             # Prepare PayU payment parameters
             payment_data = {
                 "key": settings.PAYU_MERCHANT_KEY,
-                "txnid": "641285dc" if settings.DEBUG else str(uuid.uuid4())[:8],  # Use error's txnid for testing
-                "amount": "1200.00" if settings.DEBUG else f"{cart_total:.2f}",  # Match error's amount for testing
+                "txnid": txnid,
+                "amount": f"{cart_total:.2f}",
                 "productinfo": "Swarna Sampadha Order",
-                "firstname": str(request.user.mobile_no),  # Must be 8074960679 for testing
-                "email": str(request.user.email or settings.OWNER_EMAIL),  # Must be abdulgouse757@gmail.com
+                "firstname": str(request.user.mobile_no),
+                "email": str(request.user.email or settings.OWNER_EMAIL),
                 "phone": str(request.user.mobile_no),
                 "surl": settings.PAYU_SUCCESS_URL,
                 "furl": settings.PAYU_FAILURE_URL,
@@ -953,8 +943,25 @@ def payment(request):
                 "udf5": ""
             }
             
+            # Generate PayU hash with the correct parameter order
+            hash_string = (
+                f"{payment_data['key']}|{payment_data['txnid']}|{payment_data['amount']}|"
+                f"{payment_data['productinfo']}|{payment_data['firstname']}|"
+                f"{payment_data['email']}|{payment_data['udf1']}|{payment_data['udf2']}|"
+                f"{payment_data['udf3']}|{payment_data['udf4']}|{payment_data['udf5']}|"
+                f"||||||{settings.PAYU_MERCHANT_SALT}"
+            )
+            
+            payment_data["hash"] = sha512(hash_string.encode()).hexdigest().lower()
+            
             # Log payment parameters for debugging
             logger.debug(f"Payment parameters: {payment_data}")
+            logger.debug(f"Hash string: {hash_string}")
+            logger.debug(f"Generated hash: {payment_data['hash']}")
+            
+            # Save transaction ID in session for verification
+            request.session['payu_txnid'] = payment_data["txnid"]
+            request.session['payment_method'] = payment_method
             
             # Add payment method-specific parameters
             if payment_method == 'upi':
@@ -975,16 +982,6 @@ def payment(request):
             elif payment_method == 'netbanking':
                 payment_data['pg'] = 'NB'
             
-            # Generate PayU hash
-            payment_data["hash"] = generate_payu_hash(payment_data, settings.PAYU_MERCHANT_SALT)
-            
-            # Log generated hash
-            logger.debug(f"Generated hash for txnid {payment_data['txnid']}: {payment_data['hash']}")
-            
-            # Save transaction ID in session for verification
-            request.session['payu_txnid'] = payment_data["txnid"]
-            request.session['payment_method'] = payment_method
-            
             categories = Prod_category.objects.all()
             recent_items = Product.objects.order_by('-created_at')[:5]
             
@@ -1001,7 +998,7 @@ def payment(request):
                 'upi_id': upi_id
             })
         except Exception as e:
-            logger.error(f"Error preparing PayU payment: {str(e)}")
+            logger.error(f"Error preparing PayU payment: {str(e)}", exc_info=True)
             messages.error(request, 'Error initiating payment. Please try again.')
             return redirect('cart')
     
@@ -1016,13 +1013,6 @@ def payment(request):
         'owner_email': settings.OWNER_EMAIL
     })
 
-# ... (other views unchanged: payment_success, payment_failure, etc.)
-
-
-
-
-
-
 @csrf_exempt
 @login_required(login_url='login')
 def payment_success(request):
@@ -1032,7 +1022,12 @@ def payment_success(request):
         stored_txnid = request.session.get('payu_txnid')
         
         # Verify hash
-        hash_string = f"{settings.PAYU_MERCHANT_KEY}|{response.get('txnid')}|{response.get('amount')}|{response.get('productinfo')}|{response.get('firstname')}|{response.get('email')}|{response.get('udf1', '')}|{response.get('udf2', '')}|{response.get('udf3', '')}|{response.get('udf4', '')}|{response.get('udf5', '')}||||||{settings.PAYU_MERCHANT_SALT}"
+        hash_string = (
+            f"{settings.PAYU_MERCHANT_KEY}|{response.get('txnid')}|{response.get('amount')}|"
+            f"{response.get('productinfo')}|{response.get('firstname')}|{response.get('email')}|"
+            f"{response.get('udf1', '')}|{response.get('udf2', '')}|{response.get('udf3', '')}|"
+            f"{response.get('udf4', '')}|{response.get('udf5', '')}||||||{settings.PAYU_MERCHANT_SALT}"
+        )
         calculated_hash = sha512(hash_string.encode()).hexdigest().lower()
         
         if calculated_hash != response.get('hash') or txnid != stored_txnid:
@@ -1107,7 +1102,6 @@ def payment_failure(request):
 
 @login_required(login_url='login')
 def checkout(request):
-    # Redirect to payment view for consistency
     return redirect('payment')
 
 @login_required(login_url='login')
@@ -1125,3 +1119,57 @@ def recent_purchases(request):
         'recent_items': recent_items,
         'cart_count': cart_count
     })
+
+def send_sms(mobile_numbers, message):
+    """
+    Send SMS using MSG91 API.
+    :param mobile_numbers: List of mobile numbers (with country code, e.g., ['+919999999999'])
+    :param message: The message to send
+    :return: Response from MSG91 API
+    """
+    url = "https://api.msg91.com/api/v2/sendsms"
+    payload = {
+        "sender": settings.MSG91_SENDER_ID,
+        "route": "4",  # Transactional SMS route
+        "country": "91",  # Country code for India
+        "sms": [
+            {
+                "message": message,
+                "to": mobile_numbers
+            }
+        ]
+    }
+    headers = {
+        "authkey": settings.MSG91_AUTH_KEY,
+        "content-type": "application/json"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        logger.info(f"SMS sent successfully: {response.json()}")
+        return response.json()
+    except requests.RequestException as e:
+        logger.error(f"Error sending SMS: {e}")
+        return None
+
+def verify_payment(txnid):
+    """Verify transaction status with PayU."""
+    try:
+        url = "https://info.payu.in/merchant/postservice?form=2"
+        payload = {
+            "key": settings.PAYU_MERCHANT_KEY,
+            "command": "verify_payment",
+            "var1": txnid,
+            "hash": sha512(
+                f"{settings.PAYU_MERCHANT_KEY}|verify_payment|{txnid}|||||||||{settings.PAYU_MERCHANT_SALT}"
+                .encode()
+            ).hexdigest().lower()
+        }
+        response = requests.post(url, data=payload)
+        response_data = response.json()
+        logger.debug(f"Verification response for txnid {txnid}: {response_data}")
+        return response_data
+    except Exception as e:
+        logger.error(f"Error verifying payment for txnid {txnid}: {str(e)}")
+        return None
