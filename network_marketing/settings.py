@@ -4,6 +4,7 @@ import dj_database_url
 from dotenv import load_dotenv
 import os
 load_dotenv()
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -142,3 +143,22 @@ DEFAULT_FROM_EMAIL = 'abdulgouse757@gmail.com'
 
 MSG91_AUTH_KEY = os.getenv("MSG91_AUTH_KEY")
 MSG91_SENDER_ID = os.getenv("MSG91_SENDER_ID")
+
+
+
+
+
+
+
+# PayU Configuration
+PAYU_MERCHANT_KEY = config("PAYU_MERCHANT_KEY", default="gtKFFx")  # Test key for MID 8854378
+PAYU_MERCHANT_SALT = config("PAYU_MERCHANT_SALT", default="AsS9QgHsgUzFl5asJeJUcEXHTwigtXx3")
+PAYU_BASE_URL = config("PAYU_BASE_URL", default="https://test.payu.in/_payment")  # Test environment
+PAYU_SUCCESS_URL = config("PAYU_SUCCESS_URL", default="https://network-marketing-7llt.onrender.com/checkout/success/")
+PAYU_FAILURE_URL = config("PAYU_FAILURE_URL", default="https://network-marketing-7llt.onrender.com/checkout/failure/")
+
+
+
+CONTACT_EMAIL = "abdulgouse757@gmail.com"  # Replace with actual email
+OWNER_EMAIL = "abdulgouse757@gmail.com"  # Replace with actual owner email
+OWNER_MOBILE_NO = "9491309768"  # Replace with actual owner mobile number
