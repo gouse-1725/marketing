@@ -905,25 +905,141 @@ def cart(request):
         'recent_items': recent_items
     })
 
+# @login_required(login_url='login')
+# def payment(request):
+#     cart_items, cart_total, cart_count = get_cart(request)
+#     if not cart_items:
+#         messages.error(request, 'Your cart is empty.')
+#         return redirect('cart')
+    
+#     if request.method == 'POST':
+#         payment_method = request.POST.get('payment_method')
+#         upi_id = request.POST.get('upi_id', '')
+        
+#         try:
+#             # Validate cart total
+#             if cart_total <= 0:
+#                 raise ValueError("Cart total must be greater than zero")
+            
+#             # Generate unique transaction ID
+#             txnid = str(uuid.uuid4().hex)[:20]
+            
+#             # Prepare PayU payment parameters
+#             payment_data = {
+#                 "key": settings.PAYU_MERCHANT_KEY,
+#                 "txnid": txnid,
+#                 "amount": f"{cart_total:.2f}",
+#                 "productinfo": "Swarna Sampadha Order",
+#                 "firstname": str(request.user.mobile_no),
+#                 "email": str(request.user.email or settings.OWNER_EMAIL),
+#                 "phone": str(request.user.mobile_no),
+#                 "surl": settings.PAYU_SUCCESS_URL,
+#                 "furl": settings.PAYU_FAILURE_URL,
+#                 "service_provider": "payu_paisa",
+#                 "udf1": "",
+#                 "udf2": "",
+#                 "udf3": "",
+#                 "udf4": "",
+#                 "udf5": ""
+#             }
+            
+#             # Generate PayU hash with the correct parameter order
+#             hash_string = (
+#                 f"{payment_data['key']}|{payment_data['txnid']}|{payment_data['amount']}|"
+#                 f"{payment_data['productinfo']}|{payment_data['firstname']}|"
+#                 f"{payment_data['email']}|{payment_data['udf1']}|{payment_data['udf2']}|"
+#                 f"{payment_data['udf3']}|{payment_data['udf4']}|{payment_data['udf5']}|"
+#                 f"||||||{settings.PAYU_MERCHANT_SALT}"
+#             )
+            
+#             payment_data["hash"] = sha512(hash_string.encode()).hexdigest().lower()
+            
+#             # Log payment parameters for debugging
+#             logger.debug(f"Payment parameters: {payment_data}")
+#             logger.debug(f"Hash string: {hash_string}")
+#             logger.debug(f"Generated hash: {payment_data['hash']}")
+            
+#             # Save transaction ID in session for verification
+#             request.session['payu_txnid'] = payment_data["txnid"]
+#             request.session['payment_method'] = payment_method
+            
+#             # Add payment method-specific parameters
+#             if payment_method == 'upi':
+#                 if not upi_id or '@' not in upi_id:
+#                     messages.error(request, 'Please enter a valid UPI ID.')
+#                     return redirect('payment')
+#                 payment_data['pg'] = 'UPI'
+#                 payment_data['vpa'] = upi_id
+#             elif payment_method in ['phonepe', 'gpay', 'paytm']:
+#                 payment_data['pg'] = 'UPI'
+#                 payment_data['bankcode'] = {
+#                     'phonepe': 'PPBLUPI',
+#                     'gpay': 'GPAY',
+#                     'paytm': 'PAYTM'
+#                 }.get(payment_method, 'UPI')
+#             elif payment_method == 'card':
+#                 payment_data['pg'] = 'CC'
+#             elif payment_method == 'netbanking':
+#                 payment_data['pg'] = 'NB'
+            
+#             categories = Prod_category.objects.all()
+#             recent_items = Product.objects.order_by('-created_at')[:5]
+            
+#             return render(request, 'payment.html', {
+#                 'cart_total': cart_total,
+#                 'cart_count': cart_count,
+#                 'categories': categories,
+#                 'recent_items': recent_items,
+#                 'payment_data': payment_data,
+#                 'payu_url': settings.PAYU_BASE_URL,
+#                 'owner_mobile_no': settings.OWNER_MOBILE_NO,
+#                 'owner_email': settings.OWNER_EMAIL,
+#                 'payment_method': payment_method,
+#                 'upi_id': upi_id
+#             })
+#         except Exception as e:
+#             logger.error(f"Error preparing PayU payment: {str(e)}", exc_info=True)
+#             messages.error(request, 'Error initiating payment. Please try again.')
+#             return redirect('cart')
+    
+#     categories = Prod_category.objects.all()
+#     recent_items = Product.objects.order_by('-created_at')[:5]
+#     return render(request, 'payment.html', {
+#         'cart_total': cart_total,
+#         'cart_count': cart_count,
+#         'categories': categories,
+#         'recent_items': recent_items,
+#         'owner_mobile_no': settings.OWNER_MOBILE_NO,
+#         'owner_email': settings.OWNER_EMAIL
+#     })
+
+
+
+
+
+
+
+
+
 @login_required(login_url='login')
 def payment(request):
     cart_items, cart_total, cart_count = get_cart(request)
     if not cart_items:
         messages.error(request, 'Your cart is empty.')
         return redirect('cart')
-    
+
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
         upi_id = request.POST.get('upi_id', '')
-        
+
         try:
             # Validate cart total
             if cart_total <= 0:
                 raise ValueError("Cart total must be greater than zero")
-            
+
             # Generate unique transaction ID
             txnid = str(uuid.uuid4().hex)[:20]
-            
+
             # Prepare PayU payment parameters
             payment_data = {
                 "key": settings.PAYU_MERCHANT_KEY,
@@ -940,29 +1056,19 @@ def payment(request):
                 "udf2": "",
                 "udf3": "",
                 "udf4": "",
-                "udf5": ""
+                "udf5": "",
             }
-            
-            # Generate PayU hash with the correct parameter order
-            hash_string = (
-                f"{payment_data['key']}|{payment_data['txnid']}|{payment_data['amount']}|"
-                f"{payment_data['productinfo']}|{payment_data['firstname']}|"
-                f"{payment_data['email']}|{payment_data['udf1']}|{payment_data['udf2']}|"
-                f"{payment_data['udf3']}|{payment_data['udf4']}|{payment_data['udf5']}|"
-                f"||||||{settings.PAYU_MERCHANT_SALT}"
-            )
-            
-            payment_data["hash"] = sha512(hash_string.encode()).hexdigest().lower()
-            
+
+            # Correct hash calculation!
+            payment_data["hash"] = generate_payu_hash(payment_data, settings.PAYU_MERCHANT_SALT)
+
             # Log payment parameters for debugging
             logger.debug(f"Payment parameters: {payment_data}")
-            logger.debug(f"Hash string: {hash_string}")
-            logger.debug(f"Generated hash: {payment_data['hash']}")
-            
+
             # Save transaction ID in session for verification
             request.session['payu_txnid'] = payment_data["txnid"]
             request.session['payment_method'] = payment_method
-            
+
             # Add payment method-specific parameters
             if payment_method == 'upi':
                 if not upi_id or '@' not in upi_id:
@@ -981,10 +1087,10 @@ def payment(request):
                 payment_data['pg'] = 'CC'
             elif payment_method == 'netbanking':
                 payment_data['pg'] = 'NB'
-            
+
             categories = Prod_category.objects.all()
             recent_items = Product.objects.order_by('-created_at')[:5]
-            
+
             return render(request, 'payment.html', {
                 'cart_total': cart_total,
                 'cart_count': cart_count,
@@ -1001,7 +1107,7 @@ def payment(request):
             logger.error(f"Error preparing PayU payment: {str(e)}", exc_info=True)
             messages.error(request, 'Error initiating payment. Please try again.')
             return redirect('cart')
-    
+
     categories = Prod_category.objects.all()
     recent_items = Product.objects.order_by('-created_at')[:5]
     return render(request, 'payment.html', {
@@ -1012,6 +1118,110 @@ def payment(request):
         'owner_mobile_no': settings.OWNER_MOBILE_NO,
         'owner_email': settings.OWNER_EMAIL
     })
+
+@csrf_exempt
+@login_required(login_url='login')
+def payment_success(request):
+    if request.method == 'POST':
+        response = request.POST
+        txnid = response.get('txnid')
+        stored_txnid = request.session.get('payu_txnid')
+
+        # The hash should be validated exactly as PayU states (same number/order of fields)
+        data = [
+            settings.PAYU_MERCHANT_KEY,
+            response.get('txnid', ''),
+            response.get('amount', ''),
+            response.get('productinfo', ''),
+            response.get('firstname', ''),
+            response.get('email', ''),
+            response.get('udf1', ''),
+            response.get('udf2', ''),
+            response.get('udf3', ''),
+            response.get('udf4', ''),
+            response.get('udf5', ''),
+            '', '', '', '', ''
+        ]
+        hash_string = "|".join(str(x) for x in data) + "|" + settings.PAYU_MERCHANT_SALT
+        calculated_hash = sha512(hash_string.encode('utf-8')).hexdigest().lower()
+
+        if calculated_hash != response.get('hash') or txnid != stored_txnid:
+            logger.error(f"Hash mismatch or invalid txnid. Calculated: {calculated_hash}, Received: {response.get('hash')}, Txnid: {txnid}, Stored: {stored_txnid}")
+            messages.error(request, 'Invalid transaction. Please try again.')
+            return redirect('cart')
+
+        verification_response = verify_payment(txnid)
+        if verification_response and verification_response.get('status') == '1' and verification_response.get('transaction_details', {}).get(txnid, {}).get('status') == 'success':
+            cart_items, cart_total, cart_count = get_cart(request)
+            try:
+                # Create Order
+                order = Order.objects.create(
+                    user=request.user,
+                    total_amount=cart_total,
+                    status='success',
+                    order_id=txnid
+                )
+
+                # Create OrderItems
+                for item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item['product'],
+                        quantity=item['quantity'],
+                        item_total=item['item_total']
+                    )
+
+                # Send SMS confirmation
+                sms_message = (
+                    f"Dear {request.user.mobile_no},\n"
+                    f"Your order {order.order_id} for ₹{cart_total} has been placed successfully.\n"
+                    f"Thank you for shopping with Swarna Sampadha!"
+                )
+                sms_response = send_sms([f"+91{request.user.mobile_no}"], sms_message)
+                if sms_response and sms_response.get("type") == "success":
+                    logger.info(f"SMS confirmation sent to {request.user.mobile_no} for order {order.order_id}")
+                else:
+                    logger.error(f"Failed to send SMS confirmation to {request.user.mobile_no}")
+
+                # Clear the cart and local session keys
+                request.session['cart'] = {}
+                if 'payu_txnid' in request.session:
+                    del request.session['payu_txnid']
+                if 'payment_method' in request.session:
+                    del request.session['payment_method']
+                messages.success(request, f'Payment successful! Your order ID is {order.order_id}.')
+                return redirect('recent_purchases')
+            except Exception as e:
+                logger.error(f"Payment processing failed: {str(e)}")
+                messages.error(request, 'Payment processing failed. Please contact support.')
+                return redirect('cart')
+        else:
+            logger.error(f"Payment verification failed for txnid {txnid}: {verification_response}")
+            messages.error(request, 'Payment verification failed. Please try again.')
+            return redirect('cart')
+    return redirect('cart')
+
+@csrf_exempt
+@login_required(login_url='login')
+def payment_failure(request):
+    if request.method == 'POST':
+        response = request.POST
+        logger.error(f"Payment failed: {response.get('error_Message', 'Unknown error')}")
+        messages.error(request, f'Payment failed: {response.get("error_Message", "Unknown error")}')
+        if 'payu_txnid' in request.session:
+            del request.session['payu_txnid']
+        if 'payment_method' in request.session:
+            del request.session['payment_method']
+    return redirect('cart')
+
+# ... rest of your unchanged views ...
+
+
+
+
+
+
+
 
 @csrf_exempt
 @login_required(login_url='login')
