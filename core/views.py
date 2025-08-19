@@ -533,6 +533,7 @@ import uuid
 import requests
 from .forms import CustomUserCreationForm, ContactForm, ForgotPasswordForm, OTPForm, ResetPasswordForm
 from .models import CustomUser, Product, Prod_category, OTP, Order, OrderItem
+from .utils import send_sms, generate_payu_hash
 
 logger = logging.getLogger(__name__)
 
