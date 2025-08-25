@@ -69,7 +69,6 @@ WSGI_APPLICATION = 'network_marketing.wsgi.application'
 # }
 
 
-
 DATABASES = {
     'default': dj_database_url.config(
         default='postgresql://postgres:Gouse%401725@localhost:5432/products',
@@ -145,18 +144,20 @@ MSG91_AUTH_KEY = os.getenv("MSG91_AUTH_KEY")
 MSG91_SENDER_ID = os.getenv("MSG91_SENDER_ID")
 
 
-
-
-
-
-
 # PayU Configuration
-PAYU_MERCHANT_KEY = config("PAYU_MERCHANT_KEY", default="gtKFFx")  # Test key for MID 8854378
-PAYU_MERCHANT_SALT = config("PAYU_MERCHANT_SALT", default="AsS9QgHsgUzFl5asJeJUcEXHTwigtXx3")
-PAYU_BASE_URL = config("PAYU_BASE_URL", default="https://test.payu.in/_payment")  # Test environment
+# ...existing code...
+PAYU_MERCHANT_KEY = config(
+    "PAYU_MERCHANT_KEY", default="gtKFFx"
+)  # Test key for MID 8854378
+PAYU_MERCHANT_SALT = config(
+    "PAYU_MERCHANT_SALT", default="4R38IvwiV57FwVpsgOvTXBdLE4tHUXFW"
+)  # <-- Correct test salt
+PAYU_BASE_URL = config(
+    "PAYU_BASE_URL", default="https://test.payu.in/_payment"
+)  # Test environment
+# ...existing code...
 PAYU_SUCCESS_URL = config("PAYU_SUCCESS_URL", default="https://network-marketing-7llt.onrender.com/checkout/success/")
 PAYU_FAILURE_URL = config("PAYU_FAILURE_URL", default="https://network-marketing-7llt.onrender.com/checkout/failure/")
-
 
 
 CONTACT_EMAIL = "abdulgouse757@gmail.com"  # Replace with actual email
