@@ -15,104 +15,167 @@
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         padding: 2rem;
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
     }
-    .purchases-container .category-title {
+    .purchases-title {
         font-family: 'Merriweather', serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: #1a2a43;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #212529;
         text-align: center;
-        margin-bottom: 2rem;
-    }
-    .purchases-container .category-title::after {
-        content: '';
-        display: block;
-        width: 70px;
-        height: 4px;
-        background-color: #007bff;
-        margin: 10px auto 0;
-        border-radius: 2px;
+        margin-bottom: 2.5rem;
     }
     .order-card {
         background-color: #f8f9fa;
         border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-left: 5px solid #007bff;
     }
-    .order-card h3 {
-        font-size: 1.2rem;
-        color: #1a2a43;
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
         margin-bottom: 1rem;
     }
-    .order-card p {
-        margin: 0.5rem 0;
+    .order-id {
+        font-size: 1.25rem;
+        font-weight: 600;
         color: #495057;
     }
-    .order-card .status-success {
-        color: #28a745;
-        font-weight: 600;
+    .order-date {
+        font-size: 0.9rem;
+        color: #6c757d;
     }
-    .order-items {
-        margin-top: 1rem;
+    .order-status {
+        font-weight: 700;
+        padding: 5px 15px;
+        border-radius: 20px;
+        color: #fff;
     }
-    .order-items ul {
+    .status-pending { background-color: #ffc107; }
+    .status-confirmed { background-color: #0dcaf0; }
+    .status-delivering { background-color: #0d6efd; }
+    .status-delivered { background-color: #198754; }
+    .order-item-list {
         list-style: none;
         padding: 0;
+        margin: 0;
     }
-    .order-items li {
-        margin: 0.5rem 0;
-        font-size: 0.95rem;
+    .order-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #dee2e6;
     }
-    @media (max-width: 767px) {
-        .purchases-container {
-            padding: 1.5rem;
-            margin: 1rem;
-        }
-        .purchases-container .category-title {
-            font-size: 1.6rem;
-        }
-        .order-card {
-            padding: 1rem;
-        }
+    .order-item:last-child {
+        border-bottom: none;
+    }
+    .order-item img {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-right: 1.5rem;
+    }
+    .item-details {
+        flex-grow: 1;
+    }
+    .item-name {
+        font-weight: 600;
+        color: #212529;
+    }
+    .item-price, .item-qty {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    .item-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    .btn-mark-delivered {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+    .btn-mark-delivered:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+    }
+    .btn-upload-screenshot {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+    .btn-upload-screenshot:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
     }
 </style>
 
 <div class="purchases-section">
-    <div class="purchases-container">
-        <h2 class="category-title">Your Recent Purchases</h2>
-        
-        {% if messages %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endif %}
-        
+    <div class="container purchases-container">
+        <h2 class="purchases-title">Recent Purchases</h2>
+
         {% if orders %}
             {% for order in orders %}
-                {% if order.status == 'success' %}
-                    <div class="order-card">
-                        <h3>Order ID: {{ order.order_id }}</h3>
-                        <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
-                        <p><strong>Date:</strong> {{ order.created_at|date:"F d, Y H:i" }}</p>
-                        <p><strong>Status:</strong> <span class="status-success">Successful</span></p>
-                        <div class="order-items">
-                            <strong>Items:</strong>
-                            <ul>
-                                {% for item in order.orderitem_set.all %}
-                                    <li>{{ item.product.name }} (Qty: {{ item.quantity }}) - ₹{{ item.item_total }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <span class="order-id">Order ID: #{{ order.id }}</span>
+                        <p class="order-date">{{ order.created_at|date:"F j, Y" }}</p>
                     </div>
-                {% endif %}
+                    <span class="order-status status-{{ order.get_status_display|lower|slugify }}">{{ order.orderitem_set.first.get_status_display }}</span>
+                </div>
+
+                <ul class="order-item-list">
+                    {% for item in order.orderitem_set.all %}
+                    <li class="order-item">
+                        <img src="{% if item.product_image %}{{ item.product_image.url }}{% elif item.product.image %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" alt="{{ item.product.name }}">
+                        <div class="item-details">
+                            <h6 class="item-name">{{ item.product.name }}</h6>
+                            <p class="item-qty">Quantity: {{ item.quantity }}</p>
+                            <p class="item-price">Rs {{ item.item_total|floatformat:2 }}</p>
+                        </div>
+                        <div class="item-actions">
+                            {% if item.status == "pending" and not item.payment_screenshot %}
+                            <a href="{% url 'upload_payment_screenshot' item.order.id %}" class="btn btn-upload-screenshot">Upload Screenshot</a>
+                            {% elif item.status == "delivering" %}
+                            <form method="post" action="{% url 'mark_delivered' item.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-mark-delivered">Mark as Delivered</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endfor %}
         {% else %}
-            <p>No successful purchases found.</p>
+            <div class="empty-cart text-center">
+                <div class="empty-cart-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3>No recent purchases found.</h3>
+                <p class="text-muted mb-4">Start shopping to see your orders here.</p>
+                <a href="{% url 'products' %}" class="btn btn-checkout">
+                    <i class="fas fa-shopping-bag"></i> Continue Shopping
+                </a>
+            </div>
         {% endif %}
     </div>
 </div>

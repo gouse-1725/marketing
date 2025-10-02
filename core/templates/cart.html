@@ -21,79 +21,210 @@
         padding: 2.5rem;
         max-width: 1200px;
         margin: auto;
+        width: 100%;
     }
 
     .cart-title {
         font-family: 'Merriweather', serif;
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #1a2a43;
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #212529;
         text-align: center;
         margin-bottom: 2.5rem;
         position: relative;
+        padding-bottom: 15px;
     }
     .cart-title::after {
         content: '';
-        display: block;
-        width: 70px;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
         height: 4px;
         background-color: #007bff;
-        margin: 10px auto 0;
         border-radius: 2px;
     }
 
     .cart-item {
-        transition: all 0.2s ease;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem;
+        padding: 1.5rem;
         border-bottom: 1px solid #dee2e6;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        background-color: #f8f9fa;
+        transition: all 0.2s ease;
     }
 
     .cart-item:hover {
         background-color: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     }
 
     .cart-item img {
         width: 80px;
         height: 60px;
         object-fit: cover;
-        border-radius: 8px;
+        border-radius: 4px;
         margin-right: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .cart-item-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .cart-item-title {
         font-size: 1rem;
         font-weight: 600;
-        color: #1a2a43;
-        flex-grow: 1;
+        color: #212529;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     .cart-item-price {
-        font-size: 1.1rem;
-        font-weight: 800;
+        font-size: 0.9rem;
+        font-weight: 600;
         color: #28a745;
-        margin-right: 1rem;
+    }
+
+    .cart-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
     }
 
     .btn-remove-from-cart {
         background: linear-gradient(45deg, #dc3545, #c82333);
         border: none;
-        padding: 12px 25px;
+        padding: 8px 15px;
         border-radius: 50px;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #fff;
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 5px;
     }
     .btn-remove-from-cart:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(220, 53, 69, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
         color: #fff;
+    }
+
+    .quantity-selector {
+        display: inline-flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 50px;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.07);
+        padding: 2px 10px;
+        gap: 4px;
+        border: 1px solid #e3e6ea;
+        transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .quantity-selector:focus-within {
+        box-shadow: 0 4px 16px rgba(0,123,255,0.13);
+        border-color: #007bff;
+    }
+
+    .qty-btn {
+        background: linear-gradient(90deg, #e0e7ff 0%, #f8f9fa 100%);
+        border: none;
+        color: #007bff;
+        font-size: 1.1rem;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0,123,255,0.07);
+    }
+    .qty-btn:hover, .qty-btn:focus {
+        background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.18);
+        outline: none;
+    }
+
+    .qty-input {
+        width: 40px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #212529;
+        outline: none;
+        padding: 0 2px;
+        transition: color 0.2s;
+    }
+    .qty-input::-webkit-inner-spin-button,
+    .qty-input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .qty-input:focus {
+        color: #007bff;
+    }
+
+    .btn-cart-icon {
+        background: linear-gradient(90deg, #007bff 0%, #00c6ff 100%);
+        border: none;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: box-shadow 0.2s, transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.13);
+        cursor: pointer;
+    }
+    .btn-cart-icon:hover, .btn-cart-icon:focus {
+        box-shadow: 0 4px 16px rgba(0,123,255,0.18);
+        transform: scale(1.08);
+    }
+
+    .cart-fly {
+        font-size: 1.4rem;
+        color: #fff;
+        transition: transform 0.4s cubic-bezier(.68,-0.55,.27,1.55), opacity 0.4s;
+        will-change: transform, opacity;
+        position: relative;
+        z-index: 2;
+    }
+    .cart-fly.fly-to-cart {
+        animation: flyToCart 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+
+    @keyframes flyToCart {
+        0% {
+            transform: scale(1) translateY(0) translateX(0);
+            opacity: 1;
+        }
+        60% {
+            transform: scale(1.3) translateY(-30px) translateX(30px);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(0.7) translateY(-60px) translateX(120px);
+            opacity: 0;
+        }
     }
 
     .cart-total {
@@ -102,6 +233,8 @@
         color: #28a745;
         text-align: right;
         margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #dee2e6;
     }
 
     .btn-checkout {
@@ -124,14 +257,163 @@
         transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
     }
+    .btn-checkout:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
 
-    .alert {
-        margin-bottom: 2rem;
+    .address-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .address-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .address-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .btn-toggle-address {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-toggle-address:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+    }
+
+    .address-form-container {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease;
+        margin-bottom: 1.5rem;
+    }
+    .address-form-container.show {
+        max-height: 500px;
+    }
+
+    .address-form {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .address-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .address-item {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    .address-item:hover {
+        background: #e9ecef;
+    }
+    .address-item.selected {
+        border-color: #007bff;
+        background: #e7f3ff;
+    }
+
+    .address-text {
+        flex-grow: 1;
+        margin-right: 1rem;
+    }
+
+    .address-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .address-radio {
+        margin: 0;
+        cursor: pointer;
+    }
+    .address-radio:checked {
+        accent-color: #007bff;
+    }
+
+    .btn-delete-address {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .btn-delete-address:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+
+    .empty-cart-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
     }
 
     @media (max-width: 767px) {
         .cart-container {
-            padding: 2rem;
+            padding: 1.5rem;
         }
         .cart-title {
             font-size: 1.8rem;
@@ -139,13 +421,51 @@
         .cart-item {
             flex-direction: column;
             align-items: flex-start;
+            padding: 1rem;
         }
-        .cart-item-price, .btn-remove-from-cart {
-            margin-top: 10px;
+        .cart-item img {
+            margin-right: 0;
+            margin-bottom: 1rem;
+            align-self: center;
         }
-        .btn-checkout {
-            padding: 12px 20px;
+        .cart-item-details {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        .cart-item-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+        .cart-total {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        .address-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .address-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .address-actions {
+            width: 100%;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .quantity-selector {
+            padding: 2px 6px;
+            gap: 2px;
+        }
+        .qty-btn {
+            width: 28px;
+            height: 28px;
             font-size: 1rem;
+        }
+        .qty-input {
+            width: 32px;
+            font-size: 0.95rem;
         }
     }
 </style>
@@ -153,40 +473,132 @@
 <div class="cart-section">
     <div class="container cart-container">
         <h2 class="cart-title">Your Cart</h2>
-        {% if messages %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endif %}
+        
         {% if cart_items %}
-            <div class="list-group">
+            <div class="cart-items">
                 {% for item in cart_items %}
-                    <div class="cart-item list-group-item">
+                    <div class="cart-item">
                         <img src="{% if item.product.image and item.product.image.url %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" 
                              alt="{{ item.product.name|escape }}" 
                              onerror="this.src='https://via.placeholder.com/80x60?text=Image+Not+Found';">
-                        <h6 class="cart-item-title">{{ item.product.name|truncatechars:60 }} (Qty: {{ item.quantity }})</h6>
-                        <p class="cart-item-price">Rs {{ item.item_total|floatformat:2 }} /-</p>
-                        <form action="{% url 'remove_from_cart' %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="product_id" value="{{ item.product.id }}">
-                            <button type="submit" class="btn btn-remove-from-cart">
-                                <i class="fas fa-trash"></i> Remove
-                            </button>
-                        </form>
+                        <div class="cart-item-details">
+                            <h6 class="cart-item-title">{{ item.product.name|truncatechars:60 }}</h6>
+                            <p class="cart-item-price">Rs {{ item.item_total|floatformat:2 }} /-</p>
+                        </div>
+                        <div class="cart-item-actions">
+                            <form action="{% url 'remove_from_cart' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                <button type="submit" class="btn-remove-from-cart">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </form>
+                            <div class="quantity-selector">
+                                <form action="{% url 'add_to_cart' %}" method="post" class="cart-qty-form position-relative">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                    <button type="button" class="qty-btn qty-minus" tabindex="-1"><i class="fas fa-minus"></i></button>
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" class="qty-input" required>
+                                    <button type="button" class="qty-btn qty-plus" tabindex="-1"><i class="fas fa-plus"></i></button>
+                                    <button type="submit" class="btn-cart-icon ms-2" aria-label="Update Quantity">
+                                        <span class="cart-fly"><i class="fas fa-shopping-cart"></i></span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
+            
             <p class="cart-total">Total: Rs {{ cart_total|floatformat:2 }} /-</p>
-            <a href="{% url 'payment' %}" class="btn btn-checkout">
-                <i class="fas fa-credit-card"></i> Proceed to Payment
-            </a>
+            
+            <div class="address-section">
+                <div class="address-header">
+                    <h3 class="address-title">Delivery Address</h3>
+                    <button type="button" class="btn-toggle-address" id="toggleAddressForm">
+                        <i class="fas fa-plus"></i> Add New Address
+                    </button>
+                </div>
+                
+                <div class="address-form-container" id="addressFormContainer">
+                    <form method="post" action="{% url 'add_address' %}" class="address-form" id="addressForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-label">Address Line</label>
+                                    {{ address_form.address_line }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">City</label>
+                                    {{ address_form.city }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">State</label>
+                                    {{ address_form.state }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Pincode</label>
+                                    {{ address_form.pincode }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Save Address</button>
+                        </div>
+                    </form>
+                </div>
+                
+                {% if addresses %}
+                    <ul class="address-list">
+                        {% for addr in addresses %}
+                            <li class="address-item {% if addr.is_selected %}selected{% endif %}">
+                                <div class="address-text">
+                                    {{ addr.address_line }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+                                </div>
+                                <div class="address-actions">
+                                    <form method="post" action="{% url 'select_address' addr.id %}" class="select-address-form">
+                                        {% csrf_token %}
+                                        <input type="radio" name="selected_address" value="{{ addr.id }}" class="address-radio" {% if addr.is_selected %}checked{% endif %} onchange="this.form.submit()">
+                                    </form>
+                                    <form method="post" action="{% url 'delete_address' addr.id %}" class="delete-address-form">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-delete-address" aria-label="Delete Address">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted text-center">No addresses saved. Please add an address to proceed.</p>
+                {% endif %}
+            </div>
+            
+            <form action="{% url 'proceed_to_payment' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-checkout" {% if not selected_address %}disabled{% endif %}>
+                    <i class="fas fa-credit-card"></i> Proceed to Payment
+                </button>
+            </form>
+            
+            {% if not selected_address %}
+                <p class="text-danger text-center mt-2">Please select an address to proceed with payment.</p>
+            {% endif %}
         {% else %}
-            <div class="col-12 text-center py-4">
-                <p class="lead">Your cart is empty.</p>
+            <div class="empty-cart">
+                <div class="empty-cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <h3>Your cart is empty</h3>
+                <p class="text-muted mb-4">Add some products to your cart to continue shopping</p>
                 <a href="{% url 'products' %}" class="btn btn-checkout">
                     <i class="fas fa-shopping-bag"></i> Continue Shopping
                 </a>
@@ -194,4 +606,84 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle address form visibility
+    const toggleAddressBtn = document.getElementById('toggleAddressForm');
+    const addressFormContainer = document.getElementById('addressFormContainer');
+    
+    if (toggleAddressBtn && addressFormContainer) {
+        toggleAddressBtn.addEventListener('click', function() {
+            addressFormContainer.classList.toggle('show');
+            this.innerHTML = `<i class="fas fa-plus"></i> ${addressFormContainer.classList.contains('show') ? 'Hide Form' : 'Add New Address'}`;
+        });
+    }
+    
+    // Quantity functionality for cart items
+    document.querySelectorAll('.cart-qty-form').forEach(form => {
+        const minus = form.querySelector('.qty-minus');
+        const plus = form.querySelector('.qty-plus');
+        const input = form.querySelector('.qty-input');
+        const submitBtn = form.querySelector('.btn-cart-icon');
+
+        const submitWithAnimation = () => {
+            if (submitBtn) {
+                const cartIcon = submitBtn.querySelector('.cart-fly');
+                cartIcon.classList.add('fly-to-cart');
+                setTimeout(() => {
+                    cartIcon.classList.remove('fly-to-cart');
+                    form.submit();
+                }, 700);
+            } else {
+                form.submit();
+            }
+        };
+
+        if (minus) {
+            minus.addEventListener('click', function(e) {
+                e.preventDefault();
+                let val = parseInt(input.value) || 1;
+                if (val > 1) {
+                    input.value = val - 1;
+                    submitWithAnimation();
+                }
+            });
+        }
+        
+        if (plus) {
+            plus.addEventListener('click', function(e) {
+                e.preventDefault();
+                let val = parseInt(input.value) || 1;
+                if (val < 99) {
+                    input.value = val + 1;
+                    submitWithAnimation();
+                }
+            });
+        }
+        
+        if (input) {
+            input.addEventListener('change', function() {
+                let val = parseInt(this.value) || 1;
+                if (val < 1) this.value = 1;
+                else if (val > 99) this.value = 99;
+                else this.value = val;
+                submitWithAnimation();
+            });
+        }
+        
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                submitWithAnimation();
+            });
+        }
+    });
+    
+    // Style form fields
+    document.querySelectorAll('.address-form input, .address-form select, .address-form textarea').forEach(field => {
+        field.classList.add('form-control');
+    });
+});
+</script>
 {% endblock %}

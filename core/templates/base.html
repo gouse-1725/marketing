@@ -275,8 +275,19 @@
             .navbar-brand {
                 flex-grow: 1;
             }
+            
+            /* Mobile cart icon positioning */
+            .navbar-nav.d-lg-none {
+                flex-direction: row;
+                margin-right: 10px;
+            }
+            .navbar-nav.d-lg-none .cart-icon {
+                margin: 0;
+                padding: 8px 12px;
+            }
+            
             .navbar-toggler {
-                margin-left: auto;
+                margin-left: 0;
             }
             .navbar-collapse {
                 position: absolute;
@@ -321,37 +332,48 @@
             }
 
             /* Styling for the Amazon ad section */
-.amazon-ad {
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 1.25rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1.5rem;
-    text-align: center; /* Center the content */
-}
+            .amazon-ad {
+                background-color: #fff;
+                border-radius: 
+                padding: 1.25rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                margin-bottom: 1.5rem;
+                text-align: center; /* Center the content */
+            }
 
-/* Ensure the image is fully responsive within its container */
-.amazon-ad img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    display: block;
-    margin: 0 auto;
-}
+            /* Ensure the image is fully responsive within its container */
+            .amazon-ad img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                display: block;
+                margin: 0 auto;
+            }
         }
 
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light main-navbar">
-        <div class="container-fluid mx-4">
+    <nav class="navbar navbar-expand-lg navbar-light main-navbar w-100" style="width:100%;">
+        <div class="container-fluid px-3 d-flex align-items-center justify-content-between" style="width:100%;">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
                 <img src="{% static 'logoD.png' %}" alt="Logo">
                 <span>Dinesh Ayurvedics</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <!-- Cart icon and hamburger menu for mobile, top right -->
+            <div class="d-flex align-items-center ms-auto">
+                <a class="nav-link cart-icon d-lg-none" href="{% url 'cart' %}" style="position: relative;">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% if cart_count %}
+                        <span class="cart-badge">{{ cart_count }}</span>
+                    {% else %}
+                        <span class="cart-badge">0</span>
+                    {% endif %}
+                </a>
+                <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav main-nav mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="{% url 'products' %}">Products</a></li>
@@ -397,11 +419,12 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
                                 <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-                                <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a></li>
+                                {% comment %} <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a></li> {% endcomment %}
                             </ul>
                         </li>
                     {% endif %}
-                    <li class="nav-item">
+                    <!-- Hide cart icon on mobile since we have it outside -->
+                    <li class="nav-item d-none d-lg-block">
                         <a class="nav-link cart-icon" href="{% url 'cart' %}" style="position: relative;">
                             <i class="fas fa-shopping-cart"></i>
                             {% if cart_count %}
@@ -416,7 +439,7 @@
         </div>
     </nav>
     <div class="container" id="main-content">
-        {% if messages %}
+        {% comment %} {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}
                     <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% elif message.tags == 'info' %}alert-info{% endif %} alert-dismissible fade show" role="alert">
@@ -425,7 +448,7 @@
                     </div>
                 {% endfor %}
             </div>
-        {% endif %}
+        {% endif %} {% endcomment %}
         <div class="row">
             <div class="col-12 col-md-8">
                 {% block content %}
@@ -453,11 +476,11 @@
                             {% endfor %}
                         </div>
                         <div class="amazon-ad mt-4">
-        <h5 class="font-weight-bold mb-3">Featured Product</h5>
-        <a href="https://amzn.to/3Hsxl5l" target="_blank" rel="noopener noreferrer">
-            <img src="https://via.placeholder.com/300x250?text=Your+Amazon+Ad+Here" class="img-fluid" alt="Amazon Featured Product">
-        </a>
-    </div>
+                            <h5 class="font-weight-bold mb-3">Featured Product</h5>
+                            <a href="https://amzn.to/3Hsxl5l" target="_blank" rel="noopener noreferrer">
+                                <img src="https://via.placeholder.com/300x250?text=Your+Amazon+Ad+Here" class="img-fluid" alt="Amazon Featured Product">
+                            </a>
+                        </div>
                     </div>
                 {% endif %}
             </div>

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 
-{% block title %}Login - Swarna Sampadha{% endblock %}
+{% block title %}Complete Profile - Swarna Sampadha{% endblock %}
 {% block hero %}
 {% endblock %}
 {% block content %}
 <style>
-    .login-section {
+    .profile-section {
         background-color: #f0f2f5;
         min-height: 100vh;
         display: flex;
@@ -15,18 +15,18 @@
         padding: 3rem 1rem;
     }
 
-    .login-form-container {
+    .profile-form-container {
         background-color: #ffffff;
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         padding: 3rem;
-        max-width: 500px;
+        max-width: 600px;
         width: 100%;
         position: relative;
         animation: fadeIn 0.8s ease-out;
     }
 
-    .login-form-container .category-title {
+    .profile-form-container .category-title {
         font-family: 'Merriweather', serif;
         font-size: 2.2rem;
         font-weight: 800;
@@ -35,13 +35,13 @@
         margin-bottom: 0.5rem;
         position: relative;
     }
-    .login-form-container .category-subtitle {
+    .profile-form-container .category-subtitle {
         font-size: 1rem;
         color: #6c757d;
         text-align: center;
         margin-bottom: 2.5rem;
     }
-    .login-form-container .category-title::after {
+    .profile-form-container .category-title::after {
         content: '';
         display: block;
         width: 70px;
@@ -113,7 +113,7 @@
         margin-left: 3rem;
     }
 
-    .btn-login {
+    .btn-save {
         background: linear-gradient(45deg, #007bff, #0056b3);
         border: none;
         padding: 15px 30px;
@@ -131,14 +131,14 @@
         gap: 10px;
         margin-top: 2rem;
     }
-    .btn-login:hover {
+    .btn-save:hover {
         transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
     }
-    .btn-login .fa-sign-in-alt {
+    .btn-save .fa-save {
         font-size: 1.2rem;
     }
-    .btn-login::before {
+    .btn-save::before {
         content: '';
         position: absolute;
         top: 50%;
@@ -150,23 +150,23 @@
         transform: translate(-50%, -50%);
         transition: width 0.6s ease, height 0.6s ease;
     }
-    .btn-login:hover::before {
+    .btn-save:hover::before {
         width: 300px;
         height: 300px;
     }
 
-    .login-footer {
+    .profile-footer {
         text-align: center;
         margin-top: 2rem;
         color: #6c757d;
         font-size: 0.9rem;
     }
-    .login-footer a {
+    .profile-footer a {
         color: #007bff;
         text-decoration: none;
         transition: color 0.3s ease;
     }
-    .login-footer a:hover {
+    .profile-footer a:hover {
         color: #0056b3;
         text-decoration: underline;
     }
@@ -182,132 +182,87 @@
         }
     }
 
-    /* Animated, beautiful alerts */
-    .custom-alert {
-        position: relative;
-        padding: 1rem 1.5rem 1rem 3.5rem;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        animation: slideFadeIn 0.7s cubic-bezier(.68,-0.55,.27,1.55);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border: none;
-    }
-    .custom-alert-success {
-        background: linear-gradient(90deg, #e0ffe0 0%, #d4f5e9 100%);
-        color: #218838;
-        border-left: 8px solid #28a745;
-    }
-    .custom-alert-error, .custom-alert-danger {
-        background: linear-gradient(90deg, #ffe0e0 0%, #f5d4d4 100%);
-        color: #c82333;
-        border-left: 8px solid #dc3545;
-    }
-    .custom-alert .alert-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1.5rem;
-        opacity: 0.8;
-    }
-    .custom-alert .btn-close {
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
-        opacity: 0.7;
-        transition: opacity 0.2s;
-    }
-    .custom-alert .btn-close:hover {
-        opacity: 1;
-    }
-    @keyframes slideFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
     @media (max-width: 576px) {
-        .login-form-container {
+        .profile-form-container {
             padding: 2rem 1.5rem;
         }
-        .login-form-container .category-title {
+        .profile-form-container .category-title {
             font-size: 1.8rem;
         }
     }
 </style>
 
-<div class="login-section">
-    <div class="login-form-container">
-        <h2 class="category-title">Welcome Back</h2>
-        <p class="category-subtitle">Enter your mobile number to receive OTP</p>
+<div class="profile-section">
+    <div class="profile-form-container">
+        <h2 class="category-title">Complete Profile</h2>
+        <p class="category-subtitle">Please provide your details to complete registration</p>
         
         {% if messages %}
             {% for message in messages %}
-                <div class="custom-alert custom-alert-{{ message.tags }}">
-                    {% if message.tags == 'success' %}
-                        <span class="alert-icon"><i class="fas fa-check-circle"></i></span>
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}
-                        <span class="alert-icon"><i class="fas fa-times-circle"></i></span>
-                    {% else %}
-                        <span class="alert-icon"><i class="fas fa-info-circle"></i></span>
-                    {% endif %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endif %}
 
-        <form method="post" novalidate id="otp-form">
+        <form method="post" novalidate>
             {% csrf_token %}
+            
             <div class="form-group">
-                <i class="fas fa-mobile-alt form-icon"></i>
-                {% render_field form.mobile_no class="form-control" placeholder=" " %}
-                <label for="{{ form.mobile_no.id_for_label }}" class="form-label">
-                    Mobile Number
+                <i class="fas fa-envelope form-icon"></i>
+                {% render_field form.email class="form-control" placeholder=" " %}
+                <label for="{{ form.email.id_for_label }}" class="form-label">
+                    Email Address (Optional)
                 </label>
-                {% if form.mobile_no.errors %}
+                {% if form.email.errors %}
                     <div class="errorlist">
-                        {% for error in form.mobile_no.errors %}
+                        {% for error in form.email.errors %}
                             <div>{{ error }}</div>
                         {% endfor %}
                     </div>
                 {% endif %}
             </div>
-            <button type="submit" class="btn btn-login" id="send-otp-btn">
-                <i class="fas fa-sign-in-alt"></i>
-                Send OTP
+
+            <div class="form-group">
+                <i class="fas fa-user form-icon"></i>
+                {% render_field form.first_name class="form-control" placeholder=" " %}
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                    First Name (Optional)
+                </label>
+                {% if form.first_name.errors %}
+                    <div class="errorlist">
+                        {% for error in form.first_name.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-user form-icon"></i>
+                {% render_field form.last_name class="form-control" placeholder=" " %}
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                    Last Name (Optional)
+                </label>
+                {% if form.last_name.errors %}
+                    <div class="errorlist">
+                        {% for error in form.last_name.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-save">
+                <i class="fas fa-save"></i>
+                Save Profile
             </button>
         </form>
 
-        {% comment %} <div class="login-footer">
-            <p>Don't have an account? <a href="{% url 'login' %}">Sign up with mobile</a></p>
-            <p><a href="{% url 'forgot_password' %}">Forgot Password?</a></p>
-        </div> {% endcomment %}
+        <div class="profile-footer">
+            <p><a href="{% url 'home' %}">Skip for now</a></p>
+        </div>
     </div>
 </div>
-
-<script>
-// Show alert function
-function showAlert(msg, type) {
-    let alertDiv = document.createElement('div');
-    alertDiv.className = 'custom-alert custom-alert-' + type;
-    alertDiv.innerHTML = `<span class="alert-icon"><i class="fas fa-${type === 'success' ? 'check-circle' : 'times-circle'}"></i></span>${msg}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-    document.querySelector('.login-form-container').prepend(alertDiv);
-    setTimeout(function() {
-        alertDiv.style.transition = "opacity 0.5s";
-        alertDiv.style.opacity = "0";
-        setTimeout(function() { alertDiv.remove(); }, 500);
-    }, 2000);
-}
-</script>
 {% endblock %}
