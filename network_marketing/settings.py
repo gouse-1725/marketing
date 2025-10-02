@@ -57,24 +57,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'network_marketing.wsgi.application'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'products',
-#         'USER': 'postgres',
-#         'PASSWORD': 'Gouse@1725',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
-
-
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://postgres:Gouse%401725@localhost:5432/products',
-        conn_max_age=600
-    )
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "Ayurvedics",
+        "USER": "postgres",
+        "PASSWORD": "Gouse@1725",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
 }
+
 
 AUTH_USER_MODEL = 'core.CustomUser'
 
