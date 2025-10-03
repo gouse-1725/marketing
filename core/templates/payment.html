@@ -2,13 +2,70 @@
 {% load widget_tweaks %}
 {% load static %}
 
-{% block title %}Payment - Swarna Sampadha{% endblock %}
+{% block title %}Payment - Ayurvedics{% endblock %}
 {% block hero %}{% endblock %}
 {% block content %}
-    <div class="container mt-5">
-        <h2>Complete Your Payment</h2>
-        <p>Scan the QR code or use the UPI ID to make the payment.</p>
+<style>
+    .payment-section {
+        background-color: #f0f2f5;
+        min-height: 80vh;
+        padding: 3rem 1rem;
+    }
+    .payment-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .payment-title {
+        font-family: 'Merriweather', serif;
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #212529;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .payment-details p {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    .payment-details strong {
+        color: #495057;
+    }
+    .qr-code {
+        max-width: 300px;
+        margin: 20px auto;
+        display: block;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .btn-confirm-payment {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        color: #fff;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-align: center;
+    }
+    .btn-confirm-payment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+    }
+    .alert {
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+</style>
 
+<div class="payment-section">
+    <div class="container payment-container">
+        <h2 class="payment-title">Complete Your Payment</h2>
         {% if messages %}
             <div class="alert alert-info">
                 {% for message in messages %}
@@ -16,19 +73,22 @@
                 {% endfor %}
             </div>
         {% endif %}
-
         <div class="payment-details">
-            <p><strong>Total Amount:</strong> ₹{{ cart_total }}</p>
-            <p><strong>Pay To:</strong> Dinesh Ayurvedics</p>
+            <p><strong>Total Amount:</strong> ₹{{ cart_total|floatformat:2 }}</p>
+            <p><strong>Pay To:</strong> Ayurvedics</p>
             <p><strong>Mobile Number:</strong> {{ owner_mobile_no }}</p>
             <p><strong>Email:</strong> {{ owner_email }}</p>
             <p><strong>UPI ID:</strong> {{ owner_upi_id }}</p>
-            <img src="{{ qr_url }}" alt="Scan to Pay with UPI" style="max-width: 300px; margin: 20px 0;">
+            {% if selected_address %}
+                <p><strong>Delivery Address:</strong> {{ selected_address.address_line }}, {{ selected_address.city }}, {{ selected_address.state }} - {{ selected_address.pincode }}</p>
+            {% endif %}
+            <img src="{{ qr_url }}" alt="Scan to Pay with UPI" class="qr-code">
+            <p class="text-muted text-center">Scan the QR code or use the UPI ID to make the payment. After paying, click "Confirm Payment" to place your order. Then, upload a payment screenshot on the next page for admin verification. Awaiting payment confirmation from admin.</p>
         </div>
-
         <form method="post" action="{% url 'payment_success' %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Confirm Payment (After Paying)</button>
+            <button type="submit" class="btn-confirm-payment">Confirm Payment (After Paying)</button>
         </form>
     </div>
+</div>
 {% endblock %}

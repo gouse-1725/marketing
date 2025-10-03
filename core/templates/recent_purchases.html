@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Recent Purchases - Swarna Sampadha{% endblock %}
+{% block title %}Recent Purchases - Ayurvedics{% endblock %}
 {% block hero %}{% endblock %}
 {% block content %}
 <style>
     .purchases-section {
         background-color: #f0f2f5;
-        min-height: 100vh;
+        min-height: 80vh;
         padding: 3rem 1rem;
     }
     .purchases-container {
@@ -58,9 +58,13 @@
         color: #fff;
     }
     .status-pending { background-color: #ffc107; }
-    .status-confirmed { background-color: #0dcaf0; }
-    .status-delivering { background-color: #0d6efd; }
+    .status-paid { background-color: #198754; }
+    .status-payment-confirmation-pending-from-admin { background-color: #0dcaf0; }
+    .status-processing { background-color: #0d6efd; }
     .status-delivered { background-color: #198754; }
+    .status-cancelled { background-color: #dc3545; }
+    .status-payment_confirmed { background-color: #0dcaf0; }
+    .status-delivering { background-color: #0d6efd; }
     .order-item-list {
         list-style: none;
         padding: 0;
@@ -124,6 +128,19 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
     }
+    .btn-view-screenshot {
+        background: linear-gradient(45deg, #6c757d, #5a6268);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+    .btn-view-screenshot:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+    }
 </style>
 
 <div class="purchases-section">
@@ -135,25 +152,41 @@
             <div class="order-card">
                 <div class="order-header">
                     <div>
-                        <span class="order-id">Order ID: #{{ order.id }}</span>
-                        <p class="order-date">{{ order.created_at|date:"F j, Y" }}</p>
+                        <span class="order-id">Order ID: #{{ order.order_id }}</span>
+                        <p class="order-date">{{ order.created_at|date:"F j, Y, g:i a" }}</p>
+                        {% if order.address %}
+                            <p class="order-date">Delivery Address: {{ order.address.address_line }}, {{ order.address.city }}, {{ order.address.state }} - {{ order.address.pincode }}</p>
+                        {% endif %}
                     </div>
-                    <span class="order-status status-{{ order.get_status_display|lower|slugify }}">{{ order.orderitem_set.first.get_status_display }}</span>
+                    <span class="order-status status-{{ order.payment_status|lower|slugify }}">{{ order.get_payment_status_display }}</span>
+                    <span class="order-status status-{{ order.order_status|lower|slugify }}">{{ order.get_order_status_display }}</span>
                 </div>
+
+                {% if order.tracking_number %}
+                    <p class="text-muted">Please track your order using the reference number: {{ order.tracking_number }}</p>
+                {% endif %}
 
                 <ul class="order-item-list">
                     {% for item in order.orderitem_set.all %}
                     <li class="order-item">
-                        <img src="{% if item.product_image %}{{ item.product_image.url }}{% elif item.product.image %}{{ item.product.image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" alt="{{ item.product.name }}">
+                        <img src="{% if item.product_image %}{{ item.product_image.url }}{% else %}https://via.placeholder.com/80x60?text=No+Image{% endif %}" alt="Item Image">
                         <div class="item-details">
                             <h6 class="item-name">{{ item.product.name }}</h6>
                             <p class="item-qty">Quantity: {{ item.quantity }}</p>
-                            <p class="item-price">Rs {{ item.item_total|floatformat:2 }}</p>
+                            <p class="item-price">₹{{ item.item_total|floatformat:2 }}</p>
+                            <p class="item-price">Status: {{ item.get_status_display }}</p>
                         </div>
                         <div class="item-actions">
-                            {% if item.status == "pending" and not item.payment_screenshot %}
-                            <a href="{% url 'upload_payment_screenshot' item.order.id %}" class="btn btn-upload-screenshot">Upload Screenshot</a>
-                            {% elif item.status == "delivering" %}
+                            {% if order.payment_status == "payment confirmation pending from admin" and not item.payment_screenshot %}
+                            <form method="post" action="{% url 'upload_payment_screenshot' order.id %}" enctype="multipart/form-data" class="d-inline">
+                                {% csrf_token %}
+                                <input type="file" name="payment_screenshot" accept="image/*" required style="display: none;" id="screenshot-{{ order.id }}-{{ item.id }}" onchange="this.form.submit()">
+                                <label for="screenshot-{{ order.id }}-{{ item.id }}" class="btn btn-upload-screenshot">Upload Payment Screenshot</label>
+                            </form>
+                            {% elif item.payment_screenshot %}
+                            <a href="{{ item.payment_screenshot.url }}" class="btn btn-view-screenshot" target="_blank">View Payment Screenshot</a>
+                            {% endif %}
+                            {% if item.status == "delivering" %}
                             <form method="post" action="{% url 'mark_delivered' item.id %}" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn-mark-delivered">Mark as Delivered</button>
