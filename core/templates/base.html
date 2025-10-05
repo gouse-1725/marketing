@@ -402,16 +402,22 @@
 
                 <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle"></i> Profile
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
-                                <li><a class="dropdown-item" href="{% url 'recent_purchases' %}"><i class="fas fa-history"></i> Recent Purchases</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                            </ul>
-                        </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle"></i> 
+            {% if user.first_name %}
+                {{ user.first_name }}
+            {% else %}
+                Profile
+            {% endif %}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
+            <li><a class="dropdown-item" href="{% url 'bio' %}"><i class="fas fa-user"></i> My Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'recent_purchases' %}"><i class="fas fa-history"></i> Recent Purchases</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </li>
                     {% else %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

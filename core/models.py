@@ -155,9 +155,14 @@ class Order(models.Model):
         return f"Order {self.id} by {self.user.mobile_no}"
 
     def save(self, *args, **kwargs):
+        # First save to get a PK
+        super().save(*args, **kwargs)
+        
+        # Then generate order_id if not set
         if not self.order_id:
             self.order_id = f"ORDER_{self.pk}_{timezone.now().strftime('%Y%m%d%H%M%S')}"
-        super().save(*args, **kwargs)
+            # Save again to update order_id
+            super().save(update_fields=['order_id'])
 
 
 class OrderItem(models.Model):
@@ -198,3 +203,40 @@ class Address(models.Model):
 
     def __str__(self):
         return f"{self.address_line}, {self.city}"
+
+
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+
+
+@receiver(pre_save, sender=Order)
+def update_order_items_status(sender, instance, **kwargs):
+    if instance.pk:  # Only for existing orders
+        try:
+            old_order = Order.objects.get(pk=instance.pk)
+
+            # If payment status changed to "paid", update order items
+            if (
+                old_order.payment_status != instance.payment_status
+                and instance.payment_status == "paid"
+            ):
+
+                # Update all order items to "payment_confirmed"
+                OrderItem.objects.filter(order=instance).update(
+                    status="payment_confirmed"
+                )
+
+            # If order status changed to "processing", update order items
+            elif (
+                old_order.order_status != instance.order_status
+                and instance.order_status == "processing"
+            ):
+
+                # Update all order items to "delivering"
+                OrderItem.objects.filter(order=instance).update(status="delivering")
+
+        except Order.DoesNotExist:
+            pass
+
+
+default_app_config = "core.apps.CoreConfig"

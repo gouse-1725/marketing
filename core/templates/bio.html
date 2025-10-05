@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Dinesh Ayurvedics{% endblock %}
+{% block hero %}{% endblock %}
+{% block content %}
+<style>
+    .profile-section {
+        background-color: #f0f2f5;
+        min-height: 80vh;
+        padding: 3rem 1rem;
+    }
+
+    .profile-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .profile-title {
+        font-family: 'Merriweather', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-subtitle {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+
+    .profile-title::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background-color: #007bff;
+        margin: 10px auto 0;
+        border-radius: 2px;
+    }
+
+    .profile-content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 3rem;
+        align-items: start;
+    }
+
+    @media (max-width: 768px) {
+        .profile-content {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .profile-sidebar {
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 5px solid #f8f9fa;
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
+    }
+
+    .profile-avatar i {
+        font-size: 4rem;
+        color: white;
+    }
+
+    .profile-mobile {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-status {
+        display: inline-block;
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #007bff;
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    .profile-details {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+    }
+
+    .detail-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-title {
+        font-family: 'Merriweather', serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: between;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 120px;
+    }
+
+    .detail-value {
+        color: #212529;
+        flex: 1;
+    }
+
+    .detail-value:empty::before {
+        content: "Not provided";
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-profile {
+        flex: 1;
+        min-width: 150px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        color: white;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid #007bff;
+        color: #007bff;
+    }
+
+    .btn-outline:hover {
+        background: #007bff;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+
+<div class="profile-section">
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1 class="profile-title">My Profile</h1>
+            <p class="profile-subtitle">Manage your personal information and preferences</p>
+        </div>
+
+        <div class="profile-content">
+            <!-- Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="profile-mobile">
+                    {{ user.mobile_no }}
+                </div>
+                
+                <span class="profile-status">
+                    {% if user.first_name or user.last_name %}
+                        Verified User
+                    {% else %}
+                        Basic Account
+                    {% endif %}
+                </span>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ orders_count }}</span>
+                        <span class="stat-label">Total Orders</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ addresses_count }}</span>
+                        <span class="stat-label">Saved Addresses</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="profile-details">
+                <!-- Personal Information -->
+                <div class="detail-section">
+                    <h3 class="detail-title">Personal Information</h3>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Mobile Number:</span>
+                        <span class="detail-value">{{ user.mobile_no }}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">First Name:</span>
+                        <span class="detail-value">{{ user.first_name }}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Last Name:</span>
+                        <span class="detail-value">{{ user.last_name }}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">{{ user.email }}</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Member Since:</span>
+                        <span class="detail-value">{{ user.date_joined|date:"F j, Y" }}</span>
+                    </div>
+                </div>
+
+                <!-- Default Address -->
+                <div class="detail-section">
+                    <h3 class="detail-title">Default Delivery Address</h3>
+                    {% if selected_address %}
+                        <div class="detail-item">
+                            <span class="detail-value">
+                                {{ selected_address.address_line }}, 
+                                {{ selected_address.city }}, 
+                                {{ selected_address.state }} - 
+                                {{ selected_address.pincode }}
+                            </span>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>No default address set</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="profile-actions">
+                    <a href="{% url 'complete_profile' %}" class="btn-profile btn-primary">
+                        <i class="fas fa-edit"></i>
+                        {% if user.first_name or user.last_name %}
+                            Edit Profile
+                        {% else %}
+                            Complete Profile
+                        {% endif %}
+                    </a>
+                    
+                    <a href="{% url 'recent_purchases' %}" class="btn-profile btn-outline">
+                        <i class="fas fa-history"></i>
+                        Order History
+                    </a>
+                    
+                    <a href="{% url 'logout' %}" class="btn-profile btn-danger">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -76,4 +76,6 @@ urlpatterns = [
     path(
         "update_cart_quantity/", views.update_cart_quantity, name="update_cart_quantity"
     ),
+    # Add this to your urlpatterns
+    path("bio/", views.bio, name="bio"),
 ]

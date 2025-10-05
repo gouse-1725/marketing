@@ -1078,6 +1078,7 @@ def complete_profile(request):
 
 def logout_view(request):
     logout(request)
+    request.session.flush()
     # messages.success(request, "You have been logged out successfully.")
     return redirect("login")
 
@@ -1427,6 +1428,7 @@ def payment_success(request):
             )
             messages.error(request, "Your cart is empty. Cannot process payment.")
             return redirect("cart")
+
         selected_address = Address.objects.filter(
             user=request.user, is_selected=True
         ).first()
@@ -1438,14 +1440,22 @@ def payment_success(request):
                 request, "No delivery address selected. Please select an address."
             )
             return redirect("cart")
+
         try:
+            # Create order first without order_id
             order = Order.objects.create(
                 user=request.user,
                 total_amount=cart_total,
                 payment_status="payment confirmation pending from admin",
                 order_status="pending",
                 address=selected_address,
+                order_id=None,
             )
+
+            # Force save to generate order_id
+            order.save()
+
+            # Create order items with consistent status
             for item in cart_items:
                 product = item["product"]
                 if not Product.objects.filter(id=product.id).exists():
@@ -1453,6 +1463,7 @@ def payment_success(request):
                         f"Product {product.id} does not exist for user {request.user.id}"
                     )
                     raise ValueError(f"Product {product.name} is no longer available")
+
                 OrderItem.objects.create(
                     order=order,
                     product=product,
@@ -1461,6 +1472,8 @@ def payment_success(request):
                     status="pending",
                     product_image=product.image if product.image else None,
                 )
+
+            # Send confirmation
             sms_message = (
                 f"Dear {request.user.mobile_no},\n"
                 f"Your order {order.order_id} for ₹{cart_total} has been placed. Please upload a payment screenshot to confirm payment.\n"
@@ -1468,6 +1481,7 @@ def payment_success(request):
                 f"Thank you for shopping with Ayurvedics!"
             )
             sms_response = send_sms([f"+91{request.user.mobile_no}"], sms_message)
+
             if sms_response and sms_response.get("type") == "success":
                 logger.info(
                     f"SMS confirmation sent to {request.user.mobile_no} for order {order.order_id}"
@@ -1476,12 +1490,17 @@ def payment_success(request):
                 logger.warning(
                     f"Failed to send SMS confirmation to {request.user.mobile_no}: {sms_response.get('error', 'Unknown error')}"
                 )
+
+            # Clear cart only after successful order creation
             request.session["cart"] = {}
+            request.session.modified = True
+
             messages.success(
                 request,
                 f"Order {order.order_id} placed successfully! Please upload a payment screenshot to confirm your payment. Awaiting admin verification for payment confirmation.",
             )
             return redirect("recent_purchases")
+
         except Exception as e:
             logger.error(
                 f"Payment processing failed for user {request.user.id}: {str(e)}"
@@ -1522,7 +1541,19 @@ def recent_purchases(request):
     categories = Prod_category.objects.all()
     recent_items = Product.objects.order_by("-created_at")[:5]
     cart_items, cart_total, cart_count = get_cart(request)
-    orders = Order.objects.filter(user=request.user).order_by("-created_at")
+
+    try:
+        # CRITICAL: Ensure we only get orders for the current user
+        orders = Order.objects.filter(user=request.user).order_by("-created_at")
+        logger.info(f"Found {orders.count()} orders for user {request.user.mobile_no}")
+
+    except Exception as e:
+        logger.error(
+            f"Error fetching orders for user {request.user.mobile_no}: {str(e)}"
+        )
+        orders = []
+        messages.error(request, "Error loading your orders. Please try again.")
+
     return render(
         request,
         "recent_purchases.html",
@@ -1722,3 +1753,30 @@ def update_cart_quantity(request):
         else:
             return JsonResponse({"success": False, "error": "Product not in cart."})
     return JsonResponse({"success": False, "error": "Invalid request method."})
+
+
+@login_required(login_url="login")
+def bio(request):
+    categories = Prod_category.objects.all()
+    recent_items = Product.objects.order_by("-created_at")[:5]
+    cart_items, cart_total, cart_count = get_cart(request)
+
+    # Get user statistics
+    orders_count = Order.objects.filter(user=request.user).count()
+    addresses_count = Address.objects.filter(user=request.user).count()
+    selected_address = Address.objects.filter(
+        user=request.user, is_selected=True
+    ).first()
+
+    return render(
+        request,
+        "bio.html",
+        {
+            "categories": categories,
+            "recent_items": recent_items,
+            "cart_count": cart_count,
+            "orders_count": orders_count,
+            "addresses_count": addresses_count,
+            "selected_address": selected_address,
+        },
+    )
