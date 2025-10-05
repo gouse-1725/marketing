@@ -7,174 +7,233 @@
 {% block content %}
 <style>
     .login-section {
-        background-color: #f0f2f5;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 3rem 1rem;
+        padding: 2rem 1rem;
     }
 
     .login-form-container {
-        background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
         padding: 3rem;
-        max-width: 500px;
+        max-width: 480px;
         width: 100%;
         position: relative;
-        animation: fadeIn 0.8s ease-out;
+        overflow: hidden;
+        animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
-    .login-form-container .category-title {
-        font-family: 'Merriweather', serif;
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #1a2a43;
-        text-align: center;
-        margin-bottom: 0.5rem;
-        position: relative;
+    .login-form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
     }
-    .login-form-container .category-subtitle {
-        font-size: 1rem;
-        color: #6c757d;
+
+    .login-header {
         text-align: center;
         margin-bottom: 2.5rem;
     }
-    .login-form-container .category-title::after {
-        content: '';
-        display: block;
-        width: 70px;
-        height: 4px;
-        background-color: #007bff;
-        margin: 10px auto 0;
-        border-radius: 2px;
+
+    .login-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        animation: bounceIn 1s ease-out;
+    }
+
+    .login-title {
+        font-family: 'Merriweather', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+        font-weight: 500;
     }
 
     .form-group {
         position: relative;
         margin-bottom: 2rem;
     }
-    .form-group .form-control {
-        padding-left: 3rem;
-        border-radius: 10px;
-        border: 1px solid #dee2e6;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        height: 50px;
-        font-size: 1rem;
-    }
-    .form-group .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
-    }
-    
-    .form-group .form-label {
-        position: absolute;
-        top: 15px;
-        left: 3rem;
-        color: #888;
-        font-size: 1rem;
-        transition: all 0.2s ease-in-out;
-        pointer-events: none;
-    }
-    .form-control:focus ~ .form-label,
-    .form-control:not(:placeholder-shown) ~ .form-label {
-        top: -10px;
-        left: 10px;
-        font-size: 0.75rem;
-        color: #007bff;
-        background: #fff;
-        padding: 0 5px;
-        z-index: 10;
+
+    .mobile-input {
+        padding: 1rem 1rem 1rem 3rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        height: 56px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: #ffffff;
+        width: 100%;
     }
 
-    .form-group .form-icon {
+    .mobile-input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-icon {
         position: absolute;
         top: 50%;
         left: 1rem;
         transform: translateY(-50%);
-        color: #adb5bd;
-        font-size: 1.1rem;
+        color: #64748b;
+        font-size: 1.2rem;
         transition: color 0.3s ease;
         z-index: 2;
     }
-    .form-control:focus ~ .form-icon {
-        color: #007bff;
+
+    .mobile-input:focus ~ .form-icon {
+        color: #4f46e5;
     }
 
-    .errorlist {
-        color: #dc3545;
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-        list-style: none;
-        padding-left: 0;
+    .form-label {
+        position: absolute;
+        top: -10px;
+        left: 0.75rem;
+        font-size: 0.8rem;
+        color: #4f46e5;
+        background: #ffffff;
+        padding: 0 0.5rem;
+        font-weight: 600;
+        z-index: 3;
     }
-    .errorlist li {
-        margin-left: 3rem;
+
+    .error-message {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #fef2f2;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border-left: 4px solid #dc2626;
     }
 
     .btn-login {
-        background: linear-gradient(45deg, #007bff, #0056b3);
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
         border: none;
-        padding: 15px 30px;
-        border-radius: 50px;
+        padding: 1.25rem 2rem;
+        border-radius: 12px;
         font-weight: 700;
         font-size: 1.1rem;
         color: #fff;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.4s ease;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 0.75rem;
         margin-top: 2rem;
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+        position: relative;
+        overflow: hidden;
     }
+
     .btn-login:hover {
         transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 12px 35px rgba(79, 70, 229, 0.4);
+        background: linear-gradient(135deg, #4338ca, #6d28d9);
     }
-    .btn-login .fa-sign-in-alt {
+
+    .btn-login:active {
+        transform: translateY(-1px);
+    }
+
+    /* Alert Styles */
+    .alert-container {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .custom-alert {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        animation: slideDown 0.5s ease-out;
+        border-left: 4px solid;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-alert-success {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+        border-left-color: #10b981;
+    }
+
+    .custom-alert-error {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #991b1b;
+        border-left-color: #dc2626;
+    }
+
+    .custom-alert-info {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e40af;
+        border-left-color: #3b82f6;
+    }
+
+    .alert-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+    .alert-icon {
         font-size: 1.2rem;
-    }
-    .btn-login::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: width 0.6s ease, height 0.6s ease;
-    }
-    .btn-login:hover::before {
-        width: 300px;
-        height: 300px;
+        flex-shrink: 0;
     }
 
-    .login-footer {
-        text-align: center;
-        margin-top: 2rem;
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-    .login-footer a {
-        color: #007bff;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-    .login-footer a:hover {
-        color: #0056b3;
-        text-decoration: underline;
+    .alert-close {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+        opacity: 0.7;
     }
 
-    @keyframes fadeIn {
+    .alert-close:hover {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Animations */
+    @keyframes slideUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
         }
         to {
             opacity: 1;
@@ -182,132 +241,205 @@
         }
     }
 
-    /* Animated, beautiful alerts */
-    .custom-alert {
-        position: relative;
-        padding: 1rem 1.5rem 1rem 3.5rem;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 1.2rem;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        animation: slideFadeIn 0.7s cubic-bezier(.68,-0.55,.27,1.55);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border: none;
-    }
-    .custom-alert-success {
-        background: linear-gradient(90deg, #e0ffe0 0%, #d4f5e9 100%);
-        color: #218838;
-        border-left: 8px solid #28a745;
-    }
-    .custom-alert-error, .custom-alert-danger {
-        background: linear-gradient(90deg, #ffe0e0 0%, #f5d4d4 100%);
-        color: #c82333;
-        border-left: 8px solid #dc3545;
-    }
-    .custom-alert .alert-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1.5rem;
-        opacity: 0.8;
-    }
-    .custom-alert .btn-close {
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
-        opacity: 0.7;
-        transition: opacity 0.2s;
-    }
-    .custom-alert .btn-close:hover {
-        opacity: 1;
-    }
-    @keyframes slideFadeIn {
+    @keyframes slideDown {
         from {
             opacity: 0;
-            transform: translateY(-20px) scale(0.95);
+            transform: translateY(-20px);
         }
         to {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
     }
 
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Mobile Responsive */
     @media (max-width: 576px) {
         .login-form-container {
             padding: 2rem 1.5rem;
         }
-        .login-form-container .category-title {
+        
+        .login-title {
+            font-size: 1.75rem;
+        }
+        
+        .login-icon {
+            width: 70px;
+            height: 70px;
             font-size: 1.8rem;
+        }
+        
+        .btn-login {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
         }
     }
 </style>
 
 <div class="login-section">
     <div class="login-form-container">
-        <h2 class="category-title">Welcome Back</h2>
-        <p class="category-subtitle">Enter your mobile number to receive OTP</p>
-        
-        {% comment %} {% if messages %}
-            {% for message in messages %}
-                <div class="custom-alert custom-alert-{{ message.tags }}">
-                    {% if message.tags == 'success' %}
-                        <span class="alert-icon"><i class="fas fa-check-circle"></i></span>
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}
-                        <span class="alert-icon"><i class="fas fa-times-circle"></i></span>
-                    {% else %}
-                        <span class="alert-icon"><i class="fas fa-info-circle"></i></span>
-                    {% endif %}
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %} {% endcomment %}
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <h2 class="login-title">Welcome Back</h2>
+            <p class="login-subtitle">Enter your mobile number to receive OTP</p>
+        </div>
 
-        <form method="post" novalidate id="otp-form">
+        <!-- Alert Container - Only show OTP related messages -->
+        <div class="alert-container" id="alertContainer">
+            {% for message in messages %}
+                {% if 'otp' in message.tags or 'login' in message.tags or 'success' in message.tags and 'OTP' in message.message or 'sent' in message.message %}
+                <div class="custom-alert custom-alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}" data-auto-dismiss="true">
+                    <div class="alert-content">
+                        <i class="fas 
+                            {% if message.tags == 'success' %}fa-check-circle
+                            {% elif message.tags == 'error' or message.tags == 'danger' %}fa-times-circle
+                            {% else %}fa-info-circle{% endif %} alert-icon">
+                        </i>
+                        <span>{{ message }}</span>
+                    </div>
+                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <form method="post" novalidate id="loginForm">
             {% csrf_token %}
+            
             <div class="form-group">
-                <i class="fas fa-mobile-alt form-icon"></i>
-                {% render_field form.mobile_no class="form-control" placeholder=" " %}
-                <label for="{{ form.mobile_no.id_for_label }}" class="form-label">
-                    Mobile Number
-                </label>
+                <div class="mobile-input-container">
+                    <i class="fas fa-mobile-alt form-icon"></i>
+                    {% render_field form.mobile_no class="mobile-input" placeholder="9876543210" maxlength="10" %}
+                    <label for="{{ form.mobile_no.id_for_label }}" class="form-label">
+                        MOBILE NUMBER
+                    </label>
+                </div>
                 {% if form.mobile_no.errors %}
-                    <div class="errorlist">
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
                         {% for error in form.mobile_no.errors %}
-                            <div>{{ error }}</div>
+                            {{ error }}
                         {% endfor %}
                     </div>
                 {% endif %}
             </div>
-            <button type="submit" class="btn btn-login" id="send-otp-btn">
-                <i class="fas fa-sign-in-alt"></i>
+
+            <button type="submit" class="btn-login" id="loginBtn">
+                <i class="fas fa-paper-plane"></i>
                 Send OTP
             </button>
         </form>
-
-        {% comment %} <div class="login-footer">
-            <p>Don't have an account? <a href="{% url 'login' %}">Sign up with mobile</a></p>
-            <p><a href="{% url 'forgot_password' %}">Forgot Password?</a></p>
-        </div> {% endcomment %}
     </div>
 </div>
 
 <script>
-// Show alert function
-function showAlert(msg, type) {
-    let alertDiv = document.createElement('div');
-    alertDiv.className = 'custom-alert custom-alert-' + type;
-    alertDiv.innerHTML = `<span class="alert-icon"><i class="fas fa-${type === 'success' ? 'check-circle' : 'times-circle'}"></i></span>${msg}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-    document.querySelector('.login-form-container').prepend(alertDiv);
-    setTimeout(function() {
-        alertDiv.style.transition = "opacity 0.5s";
-        alertDiv.style.opacity = "0";
-        setTimeout(function() { alertDiv.remove(); }, 500);
-    }, 2000);
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const loginBtn = document.getElementById('loginBtn');
+    const loginForm = document.getElementById('loginForm');
+    const mobileInput = document.querySelector('.mobile-input');
+
+    // Auto-dismiss alerts after 5 seconds
+    const autoDismissAlerts = document.querySelectorAll('[data-auto-dismiss="true"]');
+    autoDismissAlerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => {
+                    if (alert.parentNode) alert.remove();
+                }, 500);
+            }
+        }, 5000);
+    });
+
+    // Form submission handling
+    loginForm.addEventListener('submit', function(e) {
+        const mobileValue = mobileInput.value.trim();
+        
+        // Basic mobile number validation
+        if (!mobileValue || mobileValue.length !== 10 || !/^\d+$/.test(mobileValue)) {
+            e.preventDefault();
+            showAlert('Please enter a valid 10-digit mobile number.', 'error');
+            return;
+        }
+        
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+    });
+
+    // Auto-focus mobile input
+    if (mobileInput) {
+        mobileInput.focus();
+        
+        // Format mobile number as user types
+        mobileInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 10) {
+                value = value.slice(0, 10);
+            }
+            e.target.value = value;
+        });
+    }
+
+    // Show alert function
+    function showAlert(message, type = 'info') {
+        const alertContainer = document.getElementById('alertContainer');
+        
+        // Remove any existing alerts
+        const existingAlerts = alertContainer.querySelectorAll('.custom-alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `custom-alert custom-alert-${type}`;
+        alertDiv.setAttribute('data-auto-dismiss', 'true');
+        
+        const iconClass = type === 'success' ? 'fa-check-circle' : 
+                         type === 'error' ? 'fa-times-circle' : 'fa-info-circle';
+        
+        alertDiv.innerHTML = `
+            <div class="alert-content">
+                <i class="fas ${iconClass} alert-icon"></i>
+                <span>${message}</span>
+            </div>
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        alertContainer.appendChild(alertDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.style.transition = 'opacity 0.5s ease';
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (alertDiv.parentNode) alertDiv.remove();
+                }, 500);
+            }
+        }, 5000);
+    }
+});
 </script>
 {% endblock %}
