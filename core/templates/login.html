@@ -251,7 +251,7 @@
         <h2 class="category-title">Welcome Back</h2>
         <p class="category-subtitle">Enter your mobile number to receive OTP</p>
         
-        {% if messages %}
+        {% comment %} {% if messages %}
             {% for message in messages %}
                 <div class="custom-alert custom-alert-{{ message.tags }}">
                     {% if message.tags == 'success' %}
@@ -265,7 +265,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
-        {% endif %}
+        {% endif %} {% endcomment %}
 
         <form method="post" novalidate id="otp-form">
             {% csrf_token %}

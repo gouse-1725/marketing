@@ -5,90 +5,110 @@
 {% block title %}Payment - Ayurvedics{% endblock %}
 {% block hero %}{% endblock %}
 {% block content %}
-<style>
-    .payment-section {
-        background-color: #f0f2f5;
-        min-height: 80vh;
-        padding: 3rem 1rem;
-    }
-    .payment-container {
-        background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    .payment-title {
-        font-family: 'Merriweather', serif;
-        font-size: 2.25rem;
-        font-weight: 700;
-        color: #212529;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .payment-details p {
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
-    .payment-details strong {
-        color: #495057;
-    }
-    .qr-code {
-        max-width: 300px;
-        margin: 20px auto;
-        display: block;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    .btn-confirm-payment {
-        background: linear-gradient(45deg, #007bff, #0056b3);
-        border: none;
-        padding: 12px 24px;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 1rem;
-        color: #fff;
-        transition: all 0.3s ease;
-        width: 100%;
-        text-align: center;
-    }
-    .btn-confirm-payment:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
-    }
-    .alert {
-        border-radius: 10px;
-        margin-bottom: 1.5rem;
-    }
-</style>
+
+<link rel="stylesheet" href="{% static 'css/payment.css' %}">
 
 <div class="payment-section">
     <div class="container payment-container">
-        <h2 class="payment-title">Complete Your Payment</h2>
-        {% if messages %}
-            <div class="alert alert-info">
+        <div class="payment-header">
+            <div class="payment-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <h2 class="payment-title">Complete Your Payment</h2>
+            <p class="payment-subtitle">Secure & Easy Payment Process</p>
+        </div>
+
+        {% comment %} {% if messages %}
+            <div class="alert alert-info payment-alert">
+                <i class="fas fa-info-circle"></i>
                 {% for message in messages %}
                     {{ message }}
                 {% endfor %}
             </div>
-        {% endif %}
-        <div class="payment-details">
-            <p><strong>Total Amount:</strong> ₹{{ cart_total|floatformat:2 }}</p>
-            <p><strong>Pay To:</strong> Ayurvedics</p>
-            <p><strong>Mobile Number:</strong> {{ owner_mobile_no }}</p>
-            <p><strong>Email:</strong> {{ owner_email }}</p>
-            <p><strong>UPI ID:</strong> {{ owner_upi_id }}</p>
-            {% if selected_address %}
-                <p><strong>Delivery Address:</strong> {{ selected_address.address_line }}, {{ selected_address.city }}, {{ selected_address.state }} - {{ selected_address.pincode }}</p>
-            {% endif %}
-            <img src="{{ qr_url }}" alt="Scan to Pay with UPI" class="qr-code">
-            <p class="text-muted text-center">Scan the QR code or use the UPI ID to make the payment. After paying, click "Confirm Payment" to place your order. Then, upload a payment screenshot on the next page for admin verification. Awaiting payment confirmation from admin.</p>
+        {% endif %} {% endcomment %}
+
+        <div class="payment-content">
+            <div class="payment-details-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Total Amount:</span>
+                        <span class="detail-value">₹{{ cart_total|floatformat:2 }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Pay To:</span>
+                        <span class="detail-value">Ayurvedics</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Mobile Number:</span>
+                        <span class="detail-value">{{ owner_mobile_no }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">{{ owner_email }}</span>
+                    </div>
+                    <div class="detail-row highlight">
+                        <span class="detail-label">UPI ID:</span>
+                        <span class="detail-value upi-id">{{ owner_upi_id }}</span>
+                    </div>
+                    {% if selected_address %}
+                    <div class="address-section">
+                        <div class="detail-label">Delivery Address:</div>
+                        <div class="address-text">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ selected_address.address_line }}, {{ selected_address.city }}, {{ selected_address.state }} - {{ selected_address.pincode }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="qr-section">
+                <div class="qr-container">
+                    <div class="qr-header">
+                        <i class="fas fa-qrcode"></i>
+                        <span>Scan to Pay</span>
+                    </div>
+                    <img src="{{ qr_url }}" alt="Scan to Pay with UPI" class="qr-code">
+                    <div class="qr-instruction">
+                        <i class="fas fa-mobile-alt"></i>
+                        Open any UPI app and scan this code
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-instructions">
+                <div class="instructions-header">
+                    <i class="fas fa-list-ol"></i>
+                    <span>Payment Instructions</span>
+                </div>
+                <ul class="instructions-list">
+                    <li><i class="fas fa-check-circle"></i> Scan the QR code or use the UPI ID to make payment</li>
+                    <li><i class="fas fa-check-circle"></i> Click "Confirm Payment" only after successful payment</li>
+                    <li><i class="fas fa-check-circle"></i> You'll be redirected to upload payment screenshot</li>
+                    <li><i class="fas fa-check-circle"></i> Admin will verify your payment within 24 hours</li>
+                    <li><i class="fas fa-check-circle"></i> Order will be processed after verification</li>
+                </ul>
+            </div>
         </div>
-        <form method="post" action="{% url 'payment_success' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn-confirm-payment">Confirm Payment (After Paying)</button>
-        </form>
+
+        <div class="payment-action">
+            <form method="post" action="{% url 'payment_success' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-confirm-payment">
+                    <i class="fas fa-lock"></i>
+                    <span>Confirm Payment (After Paying)</span>
+                </button>
+            </form>
+            <div class="secure-payment-note">
+                <i class="fas fa-shield-alt"></i>
+                <span>100% Secure Payment</span>
+            </div>
+        </div>
     </div>
 </div>
+
+<script src="{% static 'js/payment.js' %}"></script>
 {% endblock %}

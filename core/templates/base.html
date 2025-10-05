@@ -10,357 +10,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Merriweather:wght@400;700;800&display=swap" rel="stylesheet">
-    <style>
-        html {
-            height: 100%;
-        }
-        body {
-            font-family: 'Open Sans', sans-serif;
-            line-height: 1.7;
-            color: #333;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Merriweather', serif;
-            color: #212529;
-            margin-bottom: 1rem;
-            margin-top: 1.5rem;
-        }
-        .main-navbar {
-            background-color: #fff;
-            border-bottom: 1px solid #dee2e6;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            padding: 0.5rem 0;
-        }
-        .navbar-brand img {
-            height: 40px;
-            width: auto;
-            margin-right: 15px;
-            transition: transform 0.3s ease;
-        }
-        .navbar-brand:hover img {
-            transform: scale(1.1) rotate(5deg);
-        }
-        .navbar-brand span {
-            font-weight: 700;
-            font-size: 1.6rem;
-            color: #007bff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-        .navbar-nav .nav-link {
-            color: #333 !important;
-            font-weight: 600;
-            margin-right: 18px;
-            padding: 8px 16px;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-        .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
-            color: #fff !important;
-            background: linear-gradient(45deg, #007bff, #0056b3);
-        }
-        .navbar-nav .dropdown-menu {
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            border: none;
-            padding: 10px 0;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        .navbar-nav .dropdown-item {
-            color: #333;
-            transition: all 0.3s ease;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .navbar-nav .dropdown-item:hover {
-            background-color: #f8f9fa;
-            color: #007bff;
-            padding-left: 25px;
-        }
-        .navbar-nav .dropdown-item .fas {
-            min-width: 20px;
-        }
-        #main-content {
-            padding-top: 3rem;
-            flex-grow: 1;
-        }
-        .recent-products {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 1.25rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
-        }
-        .recent-products h5 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: #212529;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
-        }
-        .recent-products .list-group-item {
-            border: none;
-            border-bottom: 1px solid #ddd;
-            padding: 10px 15px;
-            transition: background-color 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .recent-products .list-group-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        .recent-products .list-group-item:hover {
-            background-color: #f9f9fa;
-            text-decoration: none;
-        }
-        .recent-products .list-group-item:hover h6 {
-            color: #007bff;
-        }
-        .recent-products .img-thumbnail {
-            border: none;
-            border-radius: 4px;
-            width: 80px;
-            height: 60px;
-            object-fit: cover;
-            flex-shrink: 0;
-            transition: transform 0.2s ease;
-        }
-        .recent-products .list-group-item:hover .img-thumbnail {
-            transform: scale(1.05);
-        }
-        .recent-products .product-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .recent-products .product-info h6 {
-            font-size: 1rem;
-            margin-bottom: 0.25rem;
-            line-height: 1.3;
-            font-weight: 600;
-            color: #212529;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-        .recent-products .product-info .product-price {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #28a745;
-            margin-bottom: 0.25rem;
-        }
-        .recent-products .product-info .product-category {
-            font-size: 0.75rem;
-            color: #888;
-            font-style: italic;
-        }
-        @media (max-width: 767px) {
-            .recent-products .list-group-item {
-                padding: 8px 10px;
-            }
-            .recent-products .img-thumbnail {
-                width: 60px;
-                height: 45px;
-            }
-            .recent-products .product-info h6 {
-                font-size: 0.9rem;
-            }
-            .recent-products .product-info .product-price {
-                font-size: 0.85rem;
-            }
-            .recent-products .product-info .product-category {
-                font-size: 0.7rem;
-            }
-        }
-        .footer {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            padding: 1rem 0;
-            width: 100%;
-            text-align: center;
-            margin-top: auto;
-        }
-        .footer p {
-            margin: 0;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-        .footer a {
-            color: #ecf0f1;
-            margin: 0 8px;
-            font-size: 0.9rem;
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-        .footer a:hover {
-            color: #007bff;
-            transform: scale(1.2);
-        }
-        .footer .social-links {
-            margin-top: 0.5rem;
-        }
-        @media (max-width: 767px) {
-            .footer {
-                padding: 0.75rem 0;
-            }
-            .footer p {
-                font-size: 0.75rem;
-            }
-            .footer a {
-                font-size: 0.8rem;
-                margin: 0 6px;
-            }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Enhanced Cart Symbol */
-        .cart-icon {
-            position: relative;
-            font-size: 1.5rem;
-            padding: 8px 16px;
-            color: #333 !important;
-            transition: all 0.3s ease;
-        }
-        .cart-icon:hover {
-            color: #fff !important;
-            background: linear-gradient(45deg, #ff9900, #ff6e40);
-        }
-        .cart-icon .fa-shopping-cart {
-            transform: scaleX(-1); /* Flip cart icon for a unique look */
-        }
-        .cart-badge {
-            position: absolute;
-            top: 0px;
-            right: 0px;
-            font-size: 0.7rem;
-            min-width: 18px;
-            height: 18px;
-            line-height: 16px;
-            text-align: center;
-            border-radius: 50%;
-            background-color: #dc3545;
-            color: #fff;
-            border: 1px solid #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        .cart-icon:hover .cart-badge {
-            transform: scale(1.1);
-        }
-        
-        .main-nav {
-            margin-right: auto;
-        }
-
-        /* Mobile-specific changes */
-        @media (max-width: 991px) {
-            .main-navbar {
-                flex-wrap: nowrap;
-            }
-            .navbar-brand {
-                flex-grow: 1;
-            }
-            
-            /* Mobile cart icon positioning */
-            .navbar-nav.d-lg-none {
-                flex-direction: row;
-                margin-right: 10px;
-            }
-            .navbar-nav.d-lg-none .cart-icon {
-                margin: 0;
-                padding: 8px 12px;
-            }
-            
-            .navbar-toggler {
-                margin-left: 0;
-            }
-            .navbar-collapse {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: #fff;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                border-top: 1px solid #dee2e6;
-                padding: 1rem;
-                z-index: 1000;
-            }
-            .navbar-nav {
-                flex-direction: column;
-                width: 100%;
-            }
-            .navbar-nav .nav-item {
-                width: 100%;
-                text-align: center;
-            }
-            .navbar-nav .nav-link {
-                margin: 5px 0;
-            }
-            .navbar-nav .dropdown-menu {
-                width: 100%;
-                text-align: center;
-            }
-            .navbar-nav .dropdown-item {
-                justify-content: center;
-            }
-            .navbar-nav .ms-auto {
-                margin-top: 10px;
-                flex-direction: row;
-                justify-content: center;
-            }
-            .navbar-nav .ms-auto .nav-item {
-                width: auto;
-                margin: 0 5px;
-            }
-            .cart-icon, .login-dropdown {
-                margin: 0;
-            }
-
-            /* Styling for the Amazon ad section */
-            .amazon-ad {
-                background-color: #fff;
-                border-radius: 
-                padding: 1.25rem;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                margin-bottom: 1.5rem;
-                text-align: center; /* Center the content */
-            }
-
-            /* Ensure the image is fully responsive within its container */
-            .amazon-ad img {
-                max-width: 100%;
-                height: auto;
-                border-radius: 8px;
-                display: block;
-                margin: 0 auto;
-            }
-        }
-
-    </style>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light main-navbar w-100" style="width:100%;">
-        <div class="container-fluid px-3 d-flex align-items-center justify-content-between" style="width:100%;">
+    <nav class="navbar navbar-expand-lg navbar-light main-navbar w-100">
+        <div class="container-fluid px-3 d-flex align-items-center justify-content-between">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
                 <img src="{% static 'logoD.png' %}" alt="Logo">
                 <span>Dinesh Ayurvedics</span>
             </a>
-            <!-- Cart icon and hamburger menu for mobile, top right -->
             <div class="d-flex align-items-center ms-auto">
                 <a class="nav-link cart-icon d-lg-none" href="{% url 'cart' %}" style="position: relative;">
                     <i class="fas fa-shopping-cart"></i>
@@ -399,25 +57,24 @@
                         </ul>
                     </li>
                 </ul>
-
                 <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                     {% if user.is_authenticated %}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-user-circle"></i> 
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                Profile
-            {% endif %}
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
-            <li><a class="dropdown-item" href="{% url 'bio' %}"><i class="fas fa-user"></i> My Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'recent_purchases' %}"><i class="fas fa-history"></i> Recent Purchases</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i> 
+                                {% if user.first_name %}
+                                    {{ user.first_name }}
+                                {% else %}
+                                    Profile
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
+                                <li><a class="dropdown-item" href="{% url 'bio' %}"><i class="fas fa-user"></i> My Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'recent_purchases' %}"><i class="fas fa-history"></i> Recent Purchases</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
                     {% else %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -425,11 +82,9 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
                                 <li><a class="dropdown-item" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-                                {% comment %} <li><a class="dropdown-item" href="{% url 'register' %}"><i class="fas fa-user-plus"></i> Register</a></li> {% endcomment %}
                             </ul>
                         </li>
                     {% endif %}
-                    <!-- Hide cart icon on mobile since we have it outside -->
                     <li class="nav-item d-none d-lg-block">
                         <a class="nav-link cart-icon" href="{% url 'cart' %}" style="position: relative;">
                             <i class="fas fa-shopping-cart"></i>
@@ -445,16 +100,6 @@
         </div>
     </nav>
     <div class="container" id="main-content">
-        {% comment %} {% if messages %}
-            <div class="mb-4">
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% elif message.tags == 'info' %}alert-info{% endif %} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %} {% endcomment %}
         <div class="row">
             <div class="col-12 col-md-8">
                 {% block content %}
@@ -506,5 +151,6 @@
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/base.js' %}"></script>
 </body>
 </html>
