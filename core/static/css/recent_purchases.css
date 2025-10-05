@@ -735,3 +735,82 @@
   outline: 3px solid var(--primary-light);
   outline-offset: 2px;
 }
+
+/* Add to your existing recent_purchases.css */
+
+.screenshot-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.btn-replace-screenshot {
+    background: linear-gradient(135deg, #ff9e1b 0%, #ff7b00 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    width: 100%;
+    box-shadow: var(--shadow-sm);
+    border: none;
+}
+
+.btn-replace-screenshot:hover {
+    background: linear-gradient(135deg, #ff7b00 0%, #e56e00 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Update existing button styles for better consistency */
+.btn-view-screenshot {
+    background: var(--gradient-secondary);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    width: 100%;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-view-screenshot:hover {
+    background: var(--gradient-warning);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    color: white;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .screenshot-actions {
+        flex-direction: row;
+    }
+    
+    .btn-replace-screenshot,
+    .btn-view-screenshot {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .screenshot-actions {
+        flex-direction: column;
+    }
+}
